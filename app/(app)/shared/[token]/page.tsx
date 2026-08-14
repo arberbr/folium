@@ -33,7 +33,6 @@ export default async function SharedCollectionPage({
   return (
     <div className="space-y-8">
       <header className="space-y-4">
-        <p className="text-xs tracking-[0.28em] text-primary uppercase">Shared collection</p>
         <h1 className="font-heading text-4xl sm:text-5xl">{collection.name}</h1>
         <p className="text-sm text-muted-foreground">
           {papers.length} paper{papers.length === 1 ? "" : "s"}
