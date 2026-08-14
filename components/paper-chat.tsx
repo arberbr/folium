@@ -5,10 +5,18 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { ArrowUp } from "lucide-react";
 import { ControlButton } from "@/components/control-button";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
-export function PaperChat({ arxivId }: { arxivId: string }) {
+export function PaperChat({
+  arxivId,
+  signedIn = true,
+}: {
+  arxivId: string;
+  /** The chat endpoint requires auth, so signed-out readers get a prompt. */
+  signedIn?: boolean;
+}) {
   const [input, setInput] = useState("");
   const transport = useMemo(
     () =>
@@ -50,25 +58,34 @@ export function PaperChat({ arxivId }: { arxivId: string }) {
             </article>
           ))}
         </div>
-        <form
-          className="flex items-end gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!input.trim() || busy) return;
-            sendMessage({ text: input });
-            setInput("");
-          }}
-        >
-          <Textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder="What is the actual claim, and what would falsify it?"
-            className="min-h-16"
-          />
-          <ControlButton type="submit" size="icon" disabled={busy || !input.trim()}>
-            <ArrowUp />
-          </ControlButton>
-        </form>
+        {signedIn ? (
+          <form
+            className="flex items-end gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!input.trim() || busy) return;
+              sendMessage({ text: input });
+              setInput("");
+            }}
+          >
+            <Textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder="What is the actual claim, and what would falsify it?"
+              className="min-h-16"
+            />
+            <ControlButton type="submit" size="icon" disabled={busy || !input.trim()}>
+              <ArrowUp />
+            </ControlButton>
+          </form>
+        ) : (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Sign in to ask questions about this paper.
+            </p>
+            <SignInPrompt label="Sign in" />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

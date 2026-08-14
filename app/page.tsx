@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Show } from "@clerk/nextjs";
-import { ArrowRight } from "lucide-react";
 import { PageShell } from "@/components/site-header";
 import { ControlButton } from "@/components/control-button";
 import { searchArxiv } from "@/lib/arxiv/client";
@@ -43,7 +42,6 @@ export default async function LandingPage() {
               <ControlButton asChild size="lg">
                 <Link href="/today">
                   Continue to Today
-                  <ArrowRight />
                 </Link>
               </ControlButton>
             </Show>

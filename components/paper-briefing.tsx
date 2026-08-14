@@ -5,6 +5,7 @@ import { useObject } from "@ai-sdk/react";
 import { Sparkles } from "lucide-react";
 import { Chip, ChipGroup } from "@/components/chip";
 import { ControlButton } from "@/components/control-button";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { briefingSchema, type PaperBriefing } from "@/lib/ai/schema";
@@ -31,11 +32,14 @@ export function PaperBriefingPanel({
   initial,
   canStream,
   cached = false,
+  signedIn = true,
 }: {
   arxivId: string;
   initial: PaperBriefing | null;
   canStream: boolean;
   cached?: boolean;
+  /** Signed-out readers still see the sketch, but nothing may call the API. */
+  signedIn?: boolean;
 }) {
   const { object, submit, isLoading, error } = useObject({
     api: "/api/papers/analyze",
@@ -83,7 +87,14 @@ export function PaperBriefingPanel({
           </p>
         ) : null}
 
-        {!canStream && !briefing ? (
+        {!signedIn ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              This is a heuristic sketch from the abstract. Sign in for a live briefing.
+            </p>
+            <SignInPrompt label="Sign in" />
+          </div>
+        ) : !canStream && !briefing ? (
           <p className="text-sm leading-relaxed text-muted-foreground">
             Add <code className="font-mono">AI_GATEWAY_API_KEY</code> to stream a live briefing.
             Until then, Folium keeps a heuristic sketch from the abstract.

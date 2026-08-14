@@ -8,6 +8,7 @@ import { PaperBriefingPanel } from "@/components/paper-briefing";
 import { PaperCard } from "@/components/paper-card";
 import { PaperChat } from "@/components/paper-chat";
 import { SaveButton } from "@/components/save-button";
+import { SignInPrompt } from "@/components/sign-in-prompt";
 import { StatusToggle } from "@/components/status-toggle";
 import { Chip, ChipGroup } from "@/components/chip";
 import { ControlButton } from "@/components/control-button";
@@ -97,6 +98,7 @@ export default async function PaperPage({
 
   const briefing = cached?.briefing ?? heuristicBriefing(paper);
   const inCollections = shelves.filter((shelf) => shelf.paperIds.includes(paper.id));
+  const signedIn = Boolean(userId);
 
   return (
     <div className="space-y-10">
@@ -122,9 +124,15 @@ export default async function PaperPage({
           ))}
         </ChipGroup>
         <div className="flex flex-wrap items-center gap-2">
-          <SaveButton arxivId={paper.id} saved={Boolean(libraryItem)} />
-          <AddToShelf arxivId={paper.id} shelves={shelves} />
-          <StatusToggle arxivId={paper.id} status={libraryItem?.status ?? null} />
+          {signedIn ? (
+            <>
+              <SaveButton arxivId={paper.id} saved={Boolean(libraryItem)} />
+              <AddToShelf arxivId={paper.id} shelves={shelves} />
+              <StatusToggle arxivId={paper.id} status={libraryItem?.status ?? null} />
+            </>
+          ) : (
+            <SignInPrompt label="Sign in to save" />
+          )}
           <ControlButton variant="outline" asChild>
             <a href={paper.absUrl} target="_blank" rel="noreferrer">
               <ExternalLink />
@@ -163,10 +171,11 @@ export default async function PaperPage({
         <PaperBriefingPanel
           arxivId={paper.id}
           initial={briefing}
-          canStream={hasAiKey()}
+          canStream={hasAiKey() && signedIn}
           cached={Boolean(cached)}
+          signedIn={signedIn}
         />
-        <PaperChat arxivId={paper.id} />
+        <PaperChat arxivId={paper.id} signedIn={signedIn} />
       </div>
 
       <section className="space-y-4">
