@@ -45,9 +45,13 @@ export async function searchArxiv(
   url.searchParams.set("sortBy", params.sortBy ?? "submittedDate");
   url.searchParams.set("sortOrder", params.sortOrder ?? "descending");
 
+  // force-cache is explicit on purpose: every page calls auth() before it gets
+  // here, and the default `fetchCache: 'auto'` skips the cache for fetches
+  // discovered after a request-time API.
   const response = await fetch(url, {
     headers: { "User-Agent": USER_AGENT, Accept: "application/atom+xml" },
-    next: { revalidate: 300 },
+    cache: "force-cache",
+    next: { revalidate: 300, tags: ["arxiv"] },
   });
 
   if (!response.ok) {

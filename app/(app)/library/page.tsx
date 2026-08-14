@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { PaperCard } from "@/components/paper-card";
-import { getPapersByIds } from "@/lib/arxiv/client";
+import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getLibrary } from "@/lib/data/user";
 
 export default async function LibraryPage() {
@@ -8,7 +8,7 @@ export default async function LibraryPage() {
   if (!userId) return null;
 
   const items = await getLibrary(userId);
-  const papers = await getPapersByIds(items.map((item) => item.arxivId));
+  const papers = await papersByIdsWithFallback(items.map((item) => item.arxivId));
   const byId = new Map(papers.map((paper) => [paper.id, paper]));
 
   return (

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { PaperCard } from "@/components/paper-card";
-import { getPapersByIds } from "@/lib/arxiv/client";
+import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getPublicCollectionByShareToken } from "@/lib/data/user";
 
 export async function generateMetadata({
@@ -18,12 +19,16 @@ export default async function SharedCollectionPage({
 }: {
   params: Promise<{ token: string }>;
 }) {
+  // This is the one route with no request-time API of its own. Without this it
+  // would be prerendered and serve a stale copy of the collection.
+  await connection();
+
   const { token } = await params;
   const collection = await getPublicCollectionByShareToken(decodeURIComponent(token));
 
   if (!collection) notFound();
 
-  const papers = await getPapersByIds(collection.paperIds);
+  const papers = await papersByIdsWithFallback(collection.paperIds);
 
   return (
     <div className="space-y-8">

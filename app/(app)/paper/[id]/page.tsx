@@ -1,6 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { Suspense } from "react";
 import { ExternalLink, FileText, Folder } from "lucide-react";
+import { PaperGridSkeleton } from "@/components/paper-skeletons";
 import { AddToShelf } from "@/components/add-to-shelf";
 import { PaperBriefingPanel } from "@/components/paper-briefing";
 import { PaperCard } from "@/components/paper-card";
@@ -13,6 +15,7 @@ import { heuristicBriefing } from "@/lib/ai/briefing";
 import { hasAiKey } from "@/lib/ai/models";
 import { getPaper, relatedPapers } from "@/lib/arxiv/client";
 import { categoryLabel } from "@/lib/arxiv/categories";
+import type { ArxivPaper } from "@/lib/arxiv/types";
 import { cachePaper, getCachedBriefing } from "@/lib/data/papers";
 import { getCollections, getLibraryItem } from "@/lib/data/user";
 import { formatAuthors, formatExactDate, collectionHref } from "@/lib/format";
@@ -23,10 +26,35 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const paper = await getPaper(decodeURIComponent(id));
-  return {
-    title: paper?.title ?? "Paper",
-  };
+  try {
+    const paper = await getPaper(decodeURIComponent(id));
+    return { title: paper?.title ?? "Paper" };
+  } catch {
+    return { title: "Paper" };
+  }
+}
+
+// Two more arXiv searches, and it sits below the fold — stream it so the paper
+// itself is not held up by it, and degrade quietly when arXiv rate-limits us.
+async function RelatedPapers({ paper }: { paper: ArxivPaper }) {
+  let related: ArxivPaper[] = [];
+  try {
+    related = await relatedPapers(paper, 6);
+  } catch {
+    return (
+      <p className="text-sm text-muted-foreground">
+        arXiv did not return neighbours for this paper. Try again in a bit.
+      </p>
+    );
+  }
+
+  return (
+    <div className="grid gap-5 md:grid-cols-2">
+      {related.map((item) => (
+        <PaperCard key={item.id} paper={item} compact />
+      ))}
+    </div>
+  );
 }
 
 export default async function PaperPage({
@@ -37,7 +65,13 @@ export default async function PaperPage({
   const { userId } = await auth();
   const { id } = await params;
   const arxivId = decodeURIComponent(id);
-  const paper = await getPaper(arxivId);
+
+  let paper: ArxivPaper | null = null;
+  try {
+    paper = await getPaper(arxivId);
+  } catch {
+    paper = null;
+  }
 
   if (!paper) {
     return (
@@ -51,13 +85,11 @@ export default async function PaperPage({
     );
   }
 
-  await cachePaper(paper);
-
-  const [libraryItem, cached, related, shelves] = await Promise.all([
+  const [libraryItem, cached, shelves] = await Promise.all([
     userId ? getLibraryItem(userId, paper.id) : Promise.resolve(undefined),
     getCachedBriefing(paper.id),
-    relatedPapers(paper, 6),
     userId ? getCollections(userId) : Promise.resolve([]),
+    cachePaper(paper),
   ]);
 
   const briefing = cached?.briefing ?? heuristicBriefing(paper);
@@ -134,11 +166,9 @@ export default async function PaperPage({
 
       <section className="space-y-4">
         <h2 className="font-heading text-3xl">Nearby in the stack</h2>
-        <div className="grid gap-5 md:grid-cols-2">
-          {related.map((item) => (
-            <PaperCard key={item.id} paper={item} compact />
-          ))}
-        </div>
+        <Suspense fallback={<PaperGridSkeleton count={4} compact />}>
+          <RelatedPapers paper={paper} />
+        </Suspense>
       </section>
     </div>
   );

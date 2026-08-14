@@ -4,7 +4,7 @@ import Link from "next/link";
 import { CollectionActions } from "@/components/collection-actions";
 import { PaperCard } from "@/components/paper-card";
 import { ControlButton } from "@/components/control-button";
-import { getPapersByIds } from "@/lib/arxiv/client";
+import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getCollectionBySlug } from "@/lib/data/user";
 
 async function requestOrigin() {
@@ -53,7 +53,7 @@ export default async function CollectionPage({
   }
 
   const [papers, origin] = await Promise.all([
-    getPapersByIds(collection.paperIds),
+    papersByIdsWithFallback(collection.paperIds),
     requestOrigin(),
   ]);
 

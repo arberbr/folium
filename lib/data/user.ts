@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { customAlphabet, nanoid } from "nanoid";
 import { db, ensureSchema } from "@/lib/db";
 import { collectionPapers, collections, libraryItems, profiles, type ReadingStatus } from "@/lib/db/schema";
@@ -100,12 +100,25 @@ export async function getCollections(userId: string) {
     .from(collections)
     .where(eq(collections.userId, userId))
     .orderBy(desc(collections.createdAt));
-  const papers = await db.query.collectionPapers.findMany();
+  if (!rows.length) return [];
+
+  const papers = await db.query.collectionPapers.findMany({
+    where: inArray(
+      collectionPapers.collectionId,
+      rows.map((row) => row.id),
+    ),
+  });
+
+  const byCollection = new Map<string, string[]>();
+  for (const row of papers) {
+    const existing = byCollection.get(row.collectionId);
+    if (existing) existing.push(row.arxivId);
+    else byCollection.set(row.collectionId, [row.arxivId]);
+  }
+
   return rows.map((collection) => ({
     ...collection,
-    paperIds: papers
-      .filter((row) => row.collectionId === collection.id)
-      .map((row) => row.arxivId),
+    paperIds: byCollection.get(collection.id) ?? [],
   }));
 }
 
