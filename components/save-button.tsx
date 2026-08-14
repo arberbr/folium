@@ -26,11 +26,11 @@ export function SaveButton({
             if (isSaved) {
               await removePaperAction(arxivId);
               setIsSaved(false);
-              toast("Removed from the library");
+              toast.success("Removed from the library");
             } else {
               await savePaperAction(arxivId);
               setIsSaved(true);
-              toast("Saved to your library");
+              toast.success("Saved to your library");
             }
           } catch {
             toast.error("Could not update the library");

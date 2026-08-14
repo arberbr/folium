@@ -1,9 +1,11 @@
 import { and, desc, eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
+import { customAlphabet, nanoid } from "nanoid";
 import { db, ensureSchema } from "@/lib/db";
 import { collectionPapers, collections, libraryItems, profiles, type ReadingStatus } from "@/lib/db/schema";
 import { DEFAULT_INTERESTS } from "@/lib/arxiv/categories";
 import { slugify } from "@/lib/format";
+
+const createShareToken = customAlphabet("23456789abcdefghjkmnpqrstuvwxyz", 7);
 
 export async function getOrCreateProfile(userId: string) {
   await ensureSchema();
@@ -93,10 +95,11 @@ export async function removeLibraryItem(userId: string, arxivId: string) {
 export async function getCollections(userId: string) {
   await ensureSchema();
   await ensureCollectionSlugs(userId);
-  const rows = await db.query.collections.findMany({
-    where: eq(collections.userId, userId),
-    orderBy: [desc(collections.createdAt)],
-  });
+  const rows = await db
+    .select()
+    .from(collections)
+    .where(eq(collections.userId, userId))
+    .orderBy(desc(collections.createdAt));
   const papers = await db.query.collectionPapers.findMany();
   return rows.map((collection) => ({
     ...collection,
@@ -207,6 +210,67 @@ export async function renameCollection(userId: string, collectionId: string, nam
     .where(eq(collections.id, collectionId));
 
   return { previousSlug: collection.slug, ...collection, name: trimmed, slug };
+}
+
+async function uniqueShareToken() {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const token = createShareToken();
+    const [existing] = await db
+      .select({ id: collections.id })
+      .from(collections)
+      .where(eq(collections.shareToken, token))
+      .limit(1);
+    if (!existing) return token;
+  }
+  throw new Error("Could not generate a share link");
+}
+
+export async function getPublicCollectionByShareToken(token: string) {
+  await ensureSchema();
+  const [collection] = await db
+    .select()
+    .from(collections)
+    .where(eq(collections.shareToken, token))
+    .limit(1);
+  if (!collection?.shareToken) return null;
+
+  const papers = await db.query.collectionPapers.findMany({
+    where: eq(collectionPapers.collectionId, collection.id),
+  });
+
+  return {
+    ...collection,
+    paperIds: papers.map((row) => row.arxivId),
+  };
+}
+
+export async function publishCollection(userId: string, collectionId: string) {
+  await ensureSchema();
+  const [collection] = await db
+    .select()
+    .from(collections)
+    .where(and(eq(collections.id, collectionId), eq(collections.userId, userId)))
+    .limit(1);
+  if (!collection) throw new Error("Collection not found");
+  if (collection.shareToken) return collection;
+
+  const shareToken = await uniqueShareToken();
+  await db.update(collections).set({ shareToken }).where(eq(collections.id, collectionId));
+  return { ...collection, shareToken };
+}
+
+export async function unpublishCollection(userId: string, collectionId: string) {
+  await ensureSchema();
+  const [collection] = await db
+    .select()
+    .from(collections)
+    .where(and(eq(collections.id, collectionId), eq(collections.userId, userId)))
+    .limit(1);
+  if (!collection) throw new Error("Collection not found");
+
+  const previousShareToken = collection.shareToken;
+  await db.update(collections).set({ shareToken: null }).where(eq(collections.id, collectionId));
+  return { ...collection, previousShareToken, shareToken: null };
 }
 
 export async function deleteCollection(userId: string, collectionId: string) {

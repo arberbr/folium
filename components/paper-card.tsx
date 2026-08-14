@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Chip, ChipGroup } from "@/components/chip";
+import { RemovePaperButton } from "@/components/remove-paper-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { categoryLabel } from "@/lib/arxiv/categories";
 import type { ArxivPaper } from "@/lib/arxiv/types";
@@ -46,52 +47,75 @@ export function PaperCard({
   className,
   compact = false,
   status,
+  removable = false,
+  collection,
 }: {
   paper: ArxivPaper;
   className?: string;
   compact?: boolean;
   status?: ReadingStatus;
+  removable?: boolean;
+  collection?: { id: string; name: string };
 }) {
   return (
-    <Link href={paperHref(paper.id)} className={cn("block", className)}>
-      <Card className="h-full bg-card/80 transition-transform duration-300 hover:-translate-y-0.5 hover:ring-primary/40">
-        <CardContent className="flex h-full flex-col gap-3 px-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="font-mono text-[11px] tracking-wide text-primary">
-                {paper.id}
-              </span>
-              {status ? (
-                <Chip className={statusChipClass(status)}>{statusLabel(status)}</Chip>
-              ) : null}
-            </div>
-            <span className="shrink-0 text-[11px] text-muted-foreground">
+    <Card
+      className={cn(
+        "relative h-full bg-card/80 transition-transform duration-300 hover:-translate-y-0.5 hover:ring-primary/40",
+        className,
+      )}
+    >
+      <Link
+        href={paperHref(paper.id)}
+        className="absolute inset-0 z-0 rounded-[inherit]"
+        aria-label={paper.title}
+      />
+      <CardContent className="pointer-events-none relative z-10 flex h-full flex-col gap-3 px-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="font-mono text-[11px] tracking-wide text-primary">
+              {paper.id}
+            </span>
+            {status ? (
+              <Chip className={statusChipClass(status)}>{statusLabel(status)}</Chip>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <span className="text-[11px] text-muted-foreground">
               {formatPublished(paper.published)}
             </span>
+            {collection ? (
+              <RemovePaperButton
+                arxivId={paper.id}
+                title={paper.title}
+                collection={collection}
+              />
+            ) : removable ? (
+              <RemovePaperButton arxivId={paper.id} title={paper.title} />
+            ) : null}
           </div>
-          <h3
-            className={cn(
-              "font-heading text-pretty text-foreground",
-              compact ? "text-lg leading-snug" : "text-xl leading-snug",
-            )}
-          >
-            {paper.title}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {formatAuthors(paper.authors)}
+        </div>
+        <h3
+          className={cn(
+            "font-heading text-pretty text-foreground",
+            compact ? "text-lg leading-snug" : "text-xl leading-snug",
+          )}
+        >
+          {paper.title}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {formatAuthors(paper.authors)}
+        </p>
+        {!compact ? (
+          <p className="line-clamp-3 text-sm leading-relaxed text-foreground/80">
+            {paper.summary}
           </p>
-          {!compact ? (
-            <p className="line-clamp-3 text-sm leading-relaxed text-foreground/80">
-              {paper.summary}
-            </p>
-          ) : null}
-          <ChipGroup className="mt-auto pt-2">
-            {paper.categories.slice(0, 3).map((category) => (
-              <Chip key={category}>{categoryLabel(category)}</Chip>
-            ))}
-          </ChipGroup>
-        </CardContent>
-      </Card>
-    </Link>
+        ) : null}
+        <ChipGroup className="mt-auto pt-2">
+          {paper.categories.slice(0, 3).map((category) => (
+            <Chip key={category}>{categoryLabel(category)}</Chip>
+          ))}
+        </ChipGroup>
+      </CardContent>
+    </Card>
   );
 }

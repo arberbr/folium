@@ -56,14 +56,14 @@ export default async function TodayPage({
           </section>
 
           <div className="flex items-center justify-between">
-            <ControlButton variant="outline" asChild disabled={start === 0}>
+            <ControlButton variant="outline" size="lg" asChild disabled={start === 0}>
               <Link href={start === 0 ? "/today" : `/today?start=${prevStart}`}>
                 Previous
               </Link>
             </ControlButton>
-            <ControlButton variant="outline" asChild disabled={!hasNext}>
+            <ControlButton variant="outline" size="lg" asChild disabled={!hasNext}>
               <Link href={hasNext ? `/today?start=${nextStart}` : "/today"}>
-                Next {PAGE_SIZE}
+                Next
               </Link>
             </ControlButton>
           </div>

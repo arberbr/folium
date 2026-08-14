@@ -12,7 +12,10 @@ type Db = ReturnType<typeof createDb>;
 const globalForDb = globalThis as unknown as {
   foliumDb?: Db;
   foliumReady?: Promise<void>;
+  foliumSchemaVersion?: number;
 };
+
+const SCHEMA_VERSION = 3;
 
 function resolveUrl() {
   return process.env.TURSO_DATABASE_URL ?? DEFAULT_URL;
@@ -34,12 +37,22 @@ function createDb() {
   return drizzle(client, { schema });
 }
 
-export const db = globalForDb.foliumDb ?? createDb();
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.foliumDb = db;
+if (
+  !globalForDb.foliumDb ||
+  globalForDb.foliumSchemaVersion !== SCHEMA_VERSION
+) {
+  globalForDb.foliumDb = createDb();
+  globalForDb.foliumReady = undefined;
+  globalForDb.foliumSchemaVersion = SCHEMA_VERSION;
 }
 
+export const db = globalForDb.foliumDb ?? createDb();
+
 export async function ensureSchema() {
+  if (globalForDb.foliumSchemaVersion !== SCHEMA_VERSION) {
+    globalForDb.foliumReady = undefined;
+    globalForDb.foliumSchemaVersion = SCHEMA_VERSION;
+  }
   if (!globalForDb.foliumReady) {
     globalForDb.foliumReady = (async () => {
       await db.run(sql.raw(`
@@ -74,6 +87,7 @@ export async function ensureSchema() {
           user_id TEXT NOT NULL,
           name TEXT NOT NULL,
           slug TEXT NOT NULL DEFAULT '',
+          share_token TEXT,
           description TEXT NOT NULL DEFAULT '',
           created_at INTEGER NOT NULL
         )
@@ -86,6 +100,14 @@ export async function ensureSchema() {
       } catch {
         // Column already exists on databases created before slugs.
       }
+      try {
+        await db.run(sql.raw(`ALTER TABLE collections ADD COLUMN share_token TEXT`));
+      } catch {
+        // Column already exists on databases created before share links.
+      }
+      await db.run(
+        sql.raw(`CREATE UNIQUE INDEX IF NOT EXISTS collections_share_token_idx ON collections (share_token)`),
+      );
       await db.run(sql.raw(`
         CREATE TABLE IF NOT EXISTS collection_papers (
           collection_id TEXT NOT NULL,

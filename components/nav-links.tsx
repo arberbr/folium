@@ -8,7 +8,15 @@ const NAV = [
   { href: "/today", label: "Today" },
   { href: "/explore", label: "Explore" },
   { href: "/library", label: "Library" },
+  { href: "/collections", label: "Collections" },
 ];
+
+function isActive(pathname: string, href: string) {
+  if (href === "/collections") {
+    return pathname === "/collections" || pathname.startsWith("/collection/");
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function NavLinks() {
   const pathname = usePathname();
@@ -16,7 +24,7 @@ export function NavLinks() {
   return (
     <nav className="hidden items-center gap-1 md:flex">
       {NAV.map((item) => {
-        const active = pathname.startsWith(item.href);
+        const active = isActive(pathname, item.href);
         return (
           <Link
             key={item.href}

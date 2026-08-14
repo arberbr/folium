@@ -8,6 +8,10 @@ export function collectionHref(slug: string) {
   return `/collection/${encodeURIComponent(slug)}`;
 }
 
+export function shareHref(token: string) {
+  return `/shared/${encodeURIComponent(token)}`;
+}
+
 export function slugify(value: string) {
   const slug = value
     .normalize("NFKD")

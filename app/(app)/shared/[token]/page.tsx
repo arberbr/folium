@@ -1,0 +1,49 @@
+import { notFound } from "next/navigation";
+import { PaperCard } from "@/components/paper-card";
+import { getPapersByIds } from "@/lib/arxiv/client";
+import { getPublicCollectionByShareToken } from "@/lib/data/user";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  const { token } = await params;
+  const collection = await getPublicCollectionByShareToken(decodeURIComponent(token));
+  return { title: collection?.name ?? "Shared collection" };
+}
+
+export default async function SharedCollectionPage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  const { token } = await params;
+  const collection = await getPublicCollectionByShareToken(decodeURIComponent(token));
+
+  if (!collection) notFound();
+
+  const papers = await getPapersByIds(collection.paperIds);
+
+  return (
+    <div className="space-y-8">
+      <header className="space-y-4">
+        <p className="text-xs tracking-[0.28em] text-primary uppercase">Shared collection</p>
+        <h1 className="font-heading text-4xl sm:text-5xl">{collection.name}</h1>
+        <p className="text-sm text-muted-foreground">
+          {papers.length} paper{papers.length === 1 ? "" : "s"}
+        </p>
+      </header>
+
+      {papers.length === 0 ? (
+        <p className="text-sm text-muted-foreground">This collection has no papers yet.</p>
+      ) : (
+        <section className="grid gap-5 md:grid-cols-2">
+          {papers.map((paper) => (
+            <PaperCard key={paper.id} paper={paper} />
+          ))}
+        </section>
+      )}
+    </div>
+  );
+}

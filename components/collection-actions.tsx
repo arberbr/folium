@@ -16,17 +16,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ShareCollectionButton } from "@/components/share-collection-button";
 import { deleteCollectionAction, renameCollectionAction } from "@/lib/actions";
 import { collectionHref } from "@/lib/format";
 
 export type CollectionActionsProps = {
   collectionId: string;
   name: string;
+  shareToken: string | null;
+  origin: string;
 };
 
 export function CollectionActions({
   collectionId,
   name,
+  shareToken,
+  origin,
 }: CollectionActionsProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -61,7 +66,7 @@ export function CollectionActions({
                 try {
                   const result = await renameCollectionAction(collectionId, title);
                   setRenameOpen(false);
-                  toast("Collection renamed");
+                  toast.success("Collection renamed");
                   router.push(collectionHref(result.slug));
                   router.refresh();
                 } catch {
@@ -94,6 +99,13 @@ export function CollectionActions({
         </DialogContent>
       </Dialog>
 
+      <ShareCollectionButton
+        collectionId={collectionId}
+        name={name}
+        shareToken={shareToken}
+        origin={origin}
+      />
+
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogTrigger asChild>
           <ControlButton variant="destructive">Delete</ControlButton>
@@ -120,8 +132,8 @@ export function CollectionActions({
                   try {
                     await deleteCollectionAction(collectionId);
                     setDeleteOpen(false);
-                    toast("Collection deleted");
-                    router.push("/library");
+                    toast.success("Collection deleted");
+                    router.push("/collections");
                     router.refresh();
                   } catch {
                     toast.error("Could not delete this collection");

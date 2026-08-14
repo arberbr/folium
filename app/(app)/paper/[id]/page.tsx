@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
-import { ExternalLink, FileText } from "lucide-react";
+import { ExternalLink, FileText, Folder } from "lucide-react";
 import { AddToShelf } from "@/components/add-to-shelf";
 import { PaperBriefingPanel } from "@/components/paper-briefing";
 import { PaperCard } from "@/components/paper-card";
@@ -15,7 +15,7 @@ import { getPaper, relatedPapers } from "@/lib/arxiv/client";
 import { categoryLabel } from "@/lib/arxiv/categories";
 import { cachePaper, getCachedBriefing } from "@/lib/data/papers";
 import { getCollections, getLibraryItem } from "@/lib/data/user";
-import { formatAuthors, formatExactDate } from "@/lib/format";
+import { formatAuthors, formatExactDate, collectionHref } from "@/lib/format";
 
 export async function generateMetadata({
   params,
@@ -61,6 +61,7 @@ export default async function PaperPage({
   ]);
 
   const briefing = cached?.briefing ?? heuristicBriefing(paper);
+  const inCollections = shelves.filter((shelf) => shelf.paperIds.includes(paper.id));
 
   return (
     <div className="space-y-10">
@@ -102,6 +103,18 @@ export default async function PaperPage({
             </a>
           </ControlButton>
         </div>
+        {inCollections.length ? (
+          <ChipGroup className="gap-2">
+            {inCollections.map((shelf) => (
+              <Chip key={shelf.id} asChild size="lg" variant="shelf">
+                <Link href={collectionHref(shelf.slug)}>
+                  <Folder className="size-3.5" />
+                  {shelf.name}
+                </Link>
+              </Chip>
+            ))}
+          </ChipGroup>
+        ) : null}
       </header>
 
       <section className="rounded-2xl border border-border/80 bg-card/40 p-6">

@@ -3,7 +3,7 @@ import { CategoryPills } from "@/components/category-pills";
 import { PaperCard } from "@/components/paper-card";
 import { SearchBar } from "@/components/search-bar";
 import { searchArxiv } from "@/lib/arxiv/client";
-import { categoryLabel } from "@/lib/arxiv/categories";
+import { categoryLabel, FEATURED_CATEGORIES } from "@/lib/arxiv/categories";
 import { auth } from "@clerk/nextjs/server";
 import { getOrCreateProfile } from "@/lib/data/user";
 import { ControlButton } from "@/components/control-button";
@@ -21,12 +21,16 @@ export default async function ExplorePage({
   const start = Number(params.start ?? 0) || 0;
 
   const profile = userId ? await getOrCreateProfile(userId) : null;
+  const interests = profile?.interests.length
+    ? profile.interests
+    : FEATURED_CATEGORIES.map((item) => item.id);
   let result: ArxivSearchResult = { papers: [], total: 0, start, maxResults: 20 };
   let fetchError = false;
   try {
     result = await searchArxiv({
       query: query || undefined,
       category: category || undefined,
+      categories: !category && !query ? interests : undefined,
       start,
       maxResults: 20,
       sortBy: query ? "relevance" : "submittedDate",
@@ -53,7 +57,7 @@ export default async function ExplorePage({
             : `${result.total.toLocaleString()} papers in this slice of arXiv.`}
         </p>
         <SearchBar defaultQuery={query} defaultCategory={category} />
-        <CategoryPills active={category} interests={profile?.interests} />
+        <CategoryPills active={category} interests={interests} />
       </header>
 
       <section className="grid gap-5 md:grid-cols-2">
@@ -63,7 +67,7 @@ export default async function ExplorePage({
       </section>
 
       <div className="flex items-center justify-between">
-        <ControlButton variant="outline" asChild disabled={start === 0}>
+        <ControlButton variant="outline" size="lg" asChild disabled={start === 0}>
           <Link
             href={`/explore?${new URLSearchParams({
               ...(query ? { q: query } : {}),
@@ -74,7 +78,7 @@ export default async function ExplorePage({
             Previous
           </Link>
         </ControlButton>
-        <ControlButton variant="outline" asChild>
+        <ControlButton variant="outline" size="lg" asChild>
           <Link
             href={`/explore?${new URLSearchParams({
               ...(query ? { q: query } : {}),

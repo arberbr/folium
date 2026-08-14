@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { CATEGORY_GROUPS } from "@/lib/arxiv/categories";
 import { Chip, ChipGroup } from "@/components/chip";
+import { FEATURED_CATEGORIES, categoryLabel } from "@/lib/arxiv/categories";
 
 export function CategoryPills({
   active,
@@ -9,7 +9,9 @@ export function CategoryPills({
   active?: string;
   interests?: string[];
 }) {
-  const featured = CATEGORY_GROUPS[0]?.categories ?? [];
+  const fields =
+    interests?.length ? interests : FEATURED_CATEGORIES.map((category) => category.id);
+
   return (
     <ChipGroup className="gap-2">
       <Chip asChild variant={!active ? "selected" : "default"} size="md">
@@ -17,21 +19,20 @@ export function CategoryPills({
           All fields
         </Link>
       </Chip>
-      {featured.map((category) => {
-        const selected = active === category.id;
+      {fields.map((id) => {
+        const selected = active === id;
         return (
           <Chip
-            key={category.id}
+            key={id}
             asChild
             size="md"
             variant={selected ? "selected" : "default"}
-            accent={Boolean(interests?.includes(category.id) && !selected)}
           >
             <Link
-              href={`/explore?cat=${encodeURIComponent(category.id)}`}
+              href={`/explore?cat=${encodeURIComponent(id)}`}
               aria-current={selected ? "page" : undefined}
             >
-              {category.label}
+              {categoryLabel(id)}
             </Link>
           </Chip>
         );

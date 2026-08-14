@@ -14,10 +14,13 @@ const chipVariants = cva(
           "border-primary bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.16)] before:bg-primary-foreground/85 hover:bg-primary/90",
         muted:
           "border-border/80 bg-muted/70 text-muted-foreground before:bg-muted-foreground/70 hover:border-border hover:bg-muted hover:text-foreground",
+        shelf:
+          "cursor-pointer border-border/50 bg-secondary text-secondary-foreground before:hidden hover:border-border hover:bg-muted hover:text-foreground",
       },
       size: {
         sm: "rounded-md px-2 py-0.5 text-[11px] leading-4",
         md: "rounded-md px-2.5 py-1 text-xs leading-4",
+        lg: "rounded-full px-3.5 py-1.5 text-sm leading-5",
       },
       accent: {
         true: "border-primary/45 bg-primary/14",

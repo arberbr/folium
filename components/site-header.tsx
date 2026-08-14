@@ -1,30 +1,35 @@
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { NavLinks } from "@/components/nav-links";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ControlButton } from "@/components/control-button";
+import { cn } from "@/lib/utils";
+
+const SHELL_CONTAINER = "mx-auto w-full max-w-6xl px-5 sm:px-8";
 
 export function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-6xl flex-1 flex-col px-5 sm:px-8">
+    <div className="flex min-h-full w-full flex-1 flex-col">
       <SiteHeader />
-      {children}
+      <div className={cn(SHELL_CONTAINER, "flex min-h-0 flex-1 flex-col")}>{children}</div>
     </div>
   );
 }
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
-      <div className="flex h-16 items-center justify-between gap-6">
+    <header className="sticky top-0 z-40 w-full bg-background">
+      <div className={cn(SHELL_CONTAINER, "flex h-16 items-center justify-between gap-6")}>
         <Link href="/" className="group flex items-center gap-3">
           <span className="flex size-8 items-center justify-center rounded-sm bg-primary text-[0.7rem] font-semibold tracking-[0.18em] text-primary-foreground">
-            FL
+            F
           </span>
           <span className="font-heading text-xl tracking-tight">Folium</span>
         </Link>
 
-        <NavLinks />
+        <Show when="signed-in">
+          <NavLinks />
+        </Show>
 
         <div className="flex items-center gap-2">
           <ThemeSwitcher />
@@ -32,9 +37,6 @@ export function SiteHeader() {
             <SignInButton mode="modal">
               <ControlButton variant="ghost">Sign in</ControlButton>
             </SignInButton>
-            <SignUpButton mode="modal">
-              <ControlButton>Open the reading room</ControlButton>
-            </SignUpButton>
           </Show>
           <Show when="signed-in">
             <ControlButton variant="ghost" asChild className="md:hidden">

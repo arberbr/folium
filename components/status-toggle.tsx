@@ -31,6 +31,8 @@ export function StatusToggle({
         startTransition(async () => {
           try {
             await updatePaperStatusAction(arxivId, value as ReadingStatus);
+            const option = OPTIONS.find((item) => item.value === value);
+            toast.success(option ? `Marked as ${option.label}` : "Status updated");
           } catch {
             toast.error("Could not update status");
           }

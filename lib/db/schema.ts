@@ -37,12 +37,14 @@ export const collections = sqliteTable(
     userId: text("user_id").notNull(),
     name: text("name").notNull(),
     slug: text("slug").notNull(),
+    shareToken: text("share_token"),
     description: text("description").notNull().default(""),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   },
   (table) => [
     index("collections_user_idx").on(table.userId),
     uniqueIndex("collections_user_slug_idx").on(table.userId, table.slug),
+    uniqueIndex("collections_share_token_idx").on(table.shareToken),
   ],
 );
 
