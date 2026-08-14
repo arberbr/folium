@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Folium
 
-## Getting Started
+A private reading room for [arXiv](https://arxiv.org). Folium turns the daily preprint flood into a desk you can actually work at: a personalized drop, structured briefings, collections, and notes — all in one Next.js app.
 
-First, run the development server:
+## What it does
+
+- **Today** — a drop assembled from the arXiv categories you follow
+- **Explore** — search by claim, author, field, or raw arXiv id
+- **Paper briefing** — TL;DR, claims, methods, limitations, novelty, and who should read it
+- **Ask the abstract** — a chat grounded in the paper you have open
+- **Library** — queue / reading / done / skipped, private notes, named collections
+
+Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.turso.tech/libsql) (swap in Turso for production). Language models go through the [Vercel AI Gateway](https://vercel.com/ai-gateway).
+
+## Stack
+
+- Next.js 16 (App Router, React Compiler, Turbopack)
+- React 19 + Tailwind CSS 4 + shadcn/ui
+- Clerk v7
+- Drizzle ORM + libSQL
+- Vercel AI SDK 7
+
+## Setup
+
+```bash
+npm install
+cp .env.example .env.local
+```
+
+Fill in:
+
+1. **Clerk** — create an application at [dashboard.clerk.com](https://dashboard.clerk.com), add `http://localhost:3000` to allowed origins, and paste the publishable + secret keys.
+2. **AI Gateway** (optional but recommended) — create a key at [Vercel AI Gateway](https://vercel.com/ai-gateway). Without it, search and collections still work; briefings fall back to a heuristic sketch of the abstract.
+
+Then:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The SQLite file is created automatically at `data/folium.db`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Point `TURSO_DATABASE_URL` (and `TURSO_AUTH_TOKEN`) at a Turso database, set the Clerk production keys, and deploy to Vercel. Add `AI_GATEWAY_API_KEY` or rely on Vercel OIDC for the gateway.

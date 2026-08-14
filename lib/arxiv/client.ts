@@ -1,0 +1,119 @@
+import { parseArxivFeed } from "./parse";
+import type { ArxivPaper, ArxivSearchParams, ArxivSearchResult } from "./types";
+
+const ARXIV_API = "https://export.arxiv.org/api/query";
+const USER_AGENT =
+  process.env.ARXIV_USER_AGENT ??
+  "Folium/1.0 (https://github.com; arXiv research reading room)";
+
+function buildSearchQuery(params: ArxivSearchParams) {
+  const clauses: string[] = [];
+
+  if (params.category) {
+    clauses.push(`cat:${params.category}`);
+  }
+  if (params.categories?.length) {
+    const cats = params.categories.map((id) => `cat:${id}`).join(" OR ");
+    clauses.push(params.categories.length > 1 ? `(${cats})` : cats);
+  }
+  if (params.author) {
+    clauses.push(`au:"${params.author.replaceAll('"', "")}"`);
+  }
+  if (params.query) {
+    const q = params.query.trim();
+    if (q.startsWith("id:")) {
+      clauses.push(`id:${q.slice(3).trim()}`);
+    } else if (/^\d{4}\.\d{4,5}(v\d+)?$/.test(q) || q.includes("/")) {
+      clauses.push(`id:${q}`);
+    } else {
+      clauses.push(`all:${q}`);
+    }
+  }
+
+  // arXiv 500s on all:* — an unbounded wildcard is not a valid search.
+  return clauses.length ? clauses.join(" AND ") : "cat:cs.*";
+}
+
+export async function searchArxiv(
+  params: ArxivSearchParams = {},
+): Promise<ArxivSearchResult> {
+  const searchQuery = buildSearchQuery(params);
+  const url = new URL(ARXIV_API);
+  url.searchParams.set("search_query", searchQuery);
+  url.searchParams.set("start", String(params.start ?? 0));
+  url.searchParams.set("max_results", String(params.maxResults ?? 20));
+  url.searchParams.set("sortBy", params.sortBy ?? "submittedDate");
+  url.searchParams.set("sortOrder", params.sortOrder ?? "descending");
+
+  const response = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/atom+xml" },
+    next: { revalidate: 300 },
+  });
+
+  if (!response.ok) {
+    throw new Error(`arXiv request failed (${response.status})`);
+  }
+
+  const xml = await response.text();
+  return parseArxivFeed(xml);
+}
+
+export async function getPaper(id: string): Promise<ArxivPaper | null> {
+  const result = await searchArxiv({
+    query: `id:${id}`,
+    maxResults: 1,
+    sortBy: "relevance",
+  });
+  return result.papers[0] ?? null;
+}
+
+export async function getPapersByIds(ids: string[]): Promise<ArxivPaper[]> {
+  const unique = [...new Set(ids.filter(Boolean))];
+  if (!unique.length) return [];
+
+  const result = await searchArxiv({
+    query: unique.map((id) => `id:${id}`).join(" OR "),
+    maxResults: unique.length,
+    sortBy: "relevance",
+  });
+
+  const byId = new Map(result.papers.map((paper) => [paper.id, paper]));
+  return unique
+    .map((id) => byId.get(id) ?? byId.get(id.replace(/v\d+$/, "")))
+    .filter((paper): paper is ArxivPaper => Boolean(paper));
+}
+
+export async function relatedPapers(paper: ArxivPaper, limit = 8) {
+  const terms = paper.title
+    .split(/[\s:;,.!?()[\]{}"“”]+/)
+    .filter((word) => word.length > 4)
+    .slice(0, 6)
+    .join(" ");
+
+  const [byCategory, byTerms] = await Promise.all([
+    searchArxiv({
+      category: paper.primaryCategory,
+      maxResults: limit + 4,
+      sortBy: "submittedDate",
+    }),
+    terms
+      ? searchArxiv({
+          query: terms,
+          maxResults: limit,
+          sortBy: "relevance",
+        })
+      : Promise.resolve({ papers: [], total: 0, start: 0, maxResults: 0 }),
+  ]);
+
+  const seen = new Set([paper.id]);
+  const related: ArxivPaper[] = [];
+
+  for (const candidate of [...byTerms.papers, ...byCategory.papers]) {
+    if (seen.has(candidate.id)) continue;
+    seen.add(candidate.id);
+    related.push(candidate);
+    if (related.length >= limit) break;
+  }
+
+  return related;
+}

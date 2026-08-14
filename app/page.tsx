@@ -1,69 +1,103 @@
-import Image from "next/image";
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { Show } from "@clerk/nextjs";
+import { ArrowRight, Bookmark, Layers3, Sparkles } from "lucide-react";
+import { PageShell } from "@/components/site-header";
+import { ControlButton } from "@/components/control-button";
+import { searchArxiv } from "@/lib/arxiv/client";
+import { formatAuthors } from "@/lib/format";
 
-export default function Home() {
+export default async function LandingPage() {
+  let sampleTitle = "Attention Is All You Need";
+  let sampleAuthors = "Vaswani et al.";
+  try {
+    const latest = await searchArxiv({ category: "cs.LG", maxResults: 1 });
+    const paper = latest.papers[0];
+    if (paper) {
+      sampleTitle = paper.title;
+      sampleAuthors = formatAuthors(paper.authors, 2);
+    }
+  } catch {
+    // arXiv may be briefly unavailable; the landing still stands.
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <PageShell>
+      <main className="relative flex-1 overflow-hidden">
+        <div className="pointer-events-none absolute -top-24 left-1/2 h-80 w-[42rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+        <section className="grid gap-16 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:py-24">
+          <div>
+            <p className="reveal text-xs tracking-[0.28em] text-primary uppercase">
+              A private observatory for the preprint stack
+            </p>
+            <h1 className="font-heading reveal reveal-delay-1 mt-5 max-w-3xl text-5xl leading-[1.05] text-pretty sm:text-7xl">
+              Read less.<br />Learn more.
+            </h1>
+            <p className="reveal reveal-delay-2 mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+              Folium is a reading room for arXiv: a daily drop from the fields you
+              actually work in, structured briefings instead of another abstract
+              dump.
+            </p>
+            <div className="reveal reveal-delay-3 mt-8 flex flex-wrap gap-3">
+              <Show when="signed-out">
+                <ControlButton asChild size="lg">
+                  <Link href="/sign-up">
+                    Open the reading room
+                    <ArrowRight />
+                  </Link>
+                </ControlButton>
+                <ControlButton asChild variant="outline" size="lg">
+                  <Link href="/sign-in">I already have a desk</Link>
+                </ControlButton>
+              </Show>
+              <Show when="signed-in">
+                <ControlButton asChild size="lg">
+                  <Link href="/today">
+                    Continue to Today
+                    <ArrowRight />
+                  </Link>
+                </ControlButton>
+              </Show>
+            </div>
+          </div>
+
+          <aside className="reveal reveal-delay-2 relative">
+            <div className="absolute -left-6 top-10 hidden h-40 w-px bg-linear-to-b from-transparent via-primary/60 to-transparent lg:block" />
+            <article className="rotate-[-1.5deg] rounded-2xl border border-border/80 bg-card/90 p-6 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.65)]">
+              <p className="font-mono text-[11px] tracking-wide text-primary">cs.LG · just in</p>
+              <h2 className="font-heading mt-3 text-2xl leading-snug">{sampleTitle}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{sampleAuthors}</p>
+              <div className="mt-6 space-y-2 text-sm">
+                <p className="text-xs tracking-[0.2em] text-primary uppercase">Briefing</p>
+                <p className="leading-relaxed">
+                  Folium will extract the claim, the method, the limitation, and the
+                  person who should actually read this — before you open the PDF.
+                </p>
+              </div>
+            </article>
+          </aside>
+        </section>
       </main>
-    </div>
+    </PageShell>
+  );
+}
+
+function Feature({
+  icon,
+  title,
+  body,
+}: {
+  icon: ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <article className="rounded-2xl border border-border/70 bg-card/50 p-6">
+      <div className="flex size-8 items-center justify-center rounded-full bg-secondary text-primary">
+        {icon}
+      </div>
+      <h3 className="font-heading mt-4 text-xl">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+    </article>
   );
 }
