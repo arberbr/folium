@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Chip, ChipGroup } from "@/components/chip";
+import { Latex } from "@/components/latex";
 import { RemovePaperButton } from "@/components/remove-paper-button";
+import { toPlainText } from "@/lib/arxiv/latex";
 import { Card, CardContent } from "@/components/ui/card";
 import { categoryLabel } from "@/lib/arxiv/categories";
 import type { ArxivPaper } from "@/lib/arxiv/types";
@@ -67,7 +69,7 @@ export function PaperCard({
       <Link
         href={paperHref(paper.id)}
         className="absolute inset-0 z-0 rounded-[inherit]"
-        aria-label={paper.title}
+        aria-label={toPlainText(paper.title)}
       />
       <CardContent className="pointer-events-none relative z-10 flex h-full flex-col gap-3 px-5">
         <div className="flex items-center justify-between gap-3">
@@ -86,11 +88,11 @@ export function PaperCard({
             {collection ? (
               <RemovePaperButton
                 arxivId={paper.id}
-                title={paper.title}
+                title={toPlainText(paper.title)}
                 collection={collection}
               />
             ) : removable ? (
-              <RemovePaperButton arxivId={paper.id} title={paper.title} />
+              <RemovePaperButton arxivId={paper.id} title={toPlainText(paper.title)} />
             ) : null}
           </div>
         </div>
@@ -100,14 +102,14 @@ export function PaperCard({
             compact ? "text-lg leading-snug" : "text-xl leading-snug",
           )}
         >
-          {paper.title}
+          <Latex>{paper.title}</Latex>
         </h3>
         <p className="text-sm text-muted-foreground">
           {formatAuthors(paper.authors)}
         </p>
         {!compact ? (
           <p className="line-clamp-3 text-sm leading-relaxed text-foreground/80">
-            {paper.summary}
+            <Latex>{paper.summary}</Latex>
           </p>
         ) : null}
         <ChipGroup className="mt-auto pt-2">

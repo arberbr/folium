@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { PageShell } from "@/components/site-header";
 import { ControlButton } from "@/components/control-button";
 import { searchArxiv } from "@/lib/arxiv/client";
+import { toPlainText } from "@/lib/arxiv/latex";
 import { formatAuthors } from "@/lib/format";
 
 export default async function LandingPage() {
@@ -13,7 +14,7 @@ export default async function LandingPage() {
     const latest = await searchArxiv({ category: "cs.LG", maxResults: 1 });
     const paper = latest.papers[0];
     if (paper) {
-      sampleTitle = paper.title;
+      sampleTitle = toPlainText(paper.title);
       sampleAuthors = formatAuthors(paper.authors, 2);
     }
   } catch {

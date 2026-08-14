@@ -1,3 +1,4 @@
+import { toPlainText } from "@/lib/arxiv/latex";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import type { PaperBriefing } from "./schema";
 
@@ -10,12 +11,15 @@ function firstSentences(text: string, count: number) {
 }
 
 export function heuristicBriefing(paper: ArxivPaper): PaperBriefing {
-  const summary = paper.summary || paper.title;
+  // Briefing strings render as plain text, so flatten the LaTeX here rather
+  // than leaking `$\alpha$` into the TL;DR.
+  const title = toPlainText(paper.title);
+  const summary = toPlainText(paper.summary) || title;
   return {
-    tldr: firstSentences(summary, 2) || paper.title,
+    tldr: firstSentences(summary, 2) || title,
     audience: `Researchers working in ${paper.primaryCategory} and adjacent areas.`,
     claims: [
-      `The paper addresses: ${paper.title}.`,
+      `The paper addresses: ${title}.`,
       firstSentences(summary, 1) || "See the abstract for the primary claim.",
     ],
     methods: [
@@ -37,7 +41,7 @@ export function heuristicBriefing(paper: ArxivPaper): PaperBriefing {
 
 export function paperContext(paper: ArxivPaper) {
   return [
-    `Title: ${paper.title}`,
+    `Title: ${toPlainText(paper.title)}`,
     `Authors: ${paper.authors.map((author) => author.name).join(", ")}`,
     `arXiv: ${paper.id}`,
     `Primary category: ${paper.primaryCategory}`,
@@ -47,7 +51,7 @@ export function paperContext(paper: ArxivPaper) {
     paper.journalRef ? `Journal: ${paper.journalRef}` : null,
     "",
     "Abstract:",
-    paper.summary,
+    toPlainText(paper.summary),
   ]
     .filter(Boolean)
     .join("\n");

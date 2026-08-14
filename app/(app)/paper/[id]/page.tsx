@@ -15,6 +15,8 @@ import { heuristicBriefing } from "@/lib/ai/briefing";
 import { hasAiKey } from "@/lib/ai/models";
 import { getPaper, relatedPapers } from "@/lib/arxiv/client";
 import { categoryLabel } from "@/lib/arxiv/categories";
+import { Latex } from "@/components/latex";
+import { toPlainText } from "@/lib/arxiv/latex";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import { cachePaper, getCachedBriefing } from "@/lib/data/papers";
 import { getCollections, getLibraryItem } from "@/lib/data/user";
@@ -28,7 +30,8 @@ export async function generateMetadata({
   const { id } = await params;
   try {
     const paper = await getPaper(decodeURIComponent(id));
-    return { title: paper?.title ?? "Paper" };
+    // Document titles are plain text — LaTeX has to be flattened, not rendered.
+    return { title: paper ? toPlainText(paper.title) : "Paper" };
   } catch {
     return { title: "Paper" };
   }
@@ -106,7 +109,7 @@ export default async function PaperPage({
           ) : null}
         </div>
         <h1 className="font-heading max-w-4xl text-4xl leading-tight text-pretty sm:text-5xl">
-          {paper.title}
+          <Latex>{paper.title}</Latex>
         </h1>
         <p className="max-w-3xl text-muted-foreground">{formatAuthors(paper.authors, 8)}</p>
         <ChipGroup>
@@ -151,7 +154,9 @@ export default async function PaperPage({
 
       <section className="rounded-2xl border border-border/80 bg-card/40 p-6">
         <p className="text-xs tracking-[0.22em] text-primary uppercase">Abstract</p>
-        <p className="mt-3 text-base leading-relaxed text-pretty">{paper.summary}</p>
+        <p className="mt-3 text-base leading-relaxed text-pretty">
+          <Latex>{paper.summary}</Latex>
+        </p>
       </section>
 
       <div className="grid items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr]">

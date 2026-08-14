@@ -1,3 +1,4 @@
+import { toPlainText } from "./latex";
 import { parseArxivFeed } from "./parse";
 import type { ArxivPaper, ArxivSearchParams, ArxivSearchResult } from "./types";
 
@@ -88,7 +89,8 @@ export async function getPapersByIds(ids: string[]): Promise<ArxivPaper[]> {
 }
 
 export async function relatedPapers(paper: ArxivPaper, limit = 8) {
-  const terms = paper.title
+  // Search on the flattened title — LaTeX delimiters are noise in a query.
+  const terms = toPlainText(paper.title)
     .split(/[\s:;,.!?()[\]{}"“”]+/)
     .filter((word) => word.length > 4)
     .slice(0, 6)

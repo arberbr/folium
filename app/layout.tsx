@@ -3,6 +3,7 @@ import { shadcn } from "@clerk/ui/themes";
 import type { Metadata } from "next";
 import { Figtree, Fraunces, IBM_Plex_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 
 const figtree = Figtree({
