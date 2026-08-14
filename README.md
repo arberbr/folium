@@ -10,7 +10,7 @@ A private reading room for [arXiv](https://arxiv.org). Folium turns the daily pr
 - **Ask the abstract** — a chat grounded in the paper you have open
 - **Library** — queue / reading / done / skipped, private notes, named collections
 
-Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.turso.tech/libsql) (swap in Turso for production). Language models go through the [Vercel AI Gateway](https://vercel.com/ai-gateway).
+Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.turso.tech/libsql) (swap in Turso for production). Language models are bring-your-own-key: each reader connects their own [OpenRouter](https://openrouter.ai) key under Account → Integrations, and it is stored privately against their Clerk user.
 
 ## Stack
 
@@ -18,7 +18,7 @@ Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.
 - React 19 + Tailwind CSS 4 + shadcn/ui
 - Clerk v7
 - Drizzle ORM + libSQL
-- Vercel AI SDK 7
+- Vercel AI SDK 7 + `@openrouter/ai-sdk-provider`
 
 ## Setup
 
@@ -27,19 +27,10 @@ npm install
 cp .env.example .env.local
 ```
 
-Fill in:
-
-1. **Clerk** — create an application at [dashboard.clerk.com](https://dashboard.clerk.com), add `http://localhost:3000` to allowed origins, and paste the publishable + secret keys.
-2. **AI Gateway** (optional but recommended) — create a key at [Vercel AI Gateway](https://vercel.com/ai-gateway). Without it, search and collections still work; briefings fall back to a heuristic sketch of the abstract.
+The only thing to fill in is **Clerk** — create an application at [dashboard.clerk.com](https://dashboard.clerk.com), add `http://localhost:3000` to allowed origins, and paste the publishable and secret keys. There is no model provider key to configure, because Folium never holds one.
 
 Then:
 
 ```bash
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000). The SQLite file is created automatically at `data/folium.db`.
-
-## Production
-
-Point `TURSO_DATABASE_URL` (and `TURSO_AUTH_TOKEN`) at a Turso database, set the Clerk production keys, and deploy to Vercel. Add `AI_GATEWAY_API_KEY` or rely on Vercel OIDC for the gateway.

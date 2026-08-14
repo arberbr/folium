@@ -8,6 +8,7 @@ import { ControlButton } from "@/components/control-button";
 import { SignInPrompt } from "@/components/sign-in-prompt";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { readableAiError } from "@/lib/ai/error-message";
 import { briefingSchema, type PaperBriefing } from "@/lib/ai/schema";
 
 function difficultyCopy(value: PaperBriefing["difficulty"] | undefined) {
@@ -53,6 +54,10 @@ export function PaperBriefingPanel({
   }, [arxivId, canStream, initial, submit]);
 
   const briefing = (object as PaperBriefing | undefined) ?? initial;
+  const errorText = readableAiError(
+    error,
+    "The briefing could not be generated. Check your OpenRouter key.",
+  );
 
   return (
     <Card className="h-full overflow-hidden">
@@ -81,11 +86,7 @@ export function PaperBriefingPanel({
           </div>
         ) : null}
 
-        {error ? (
-          <p className="text-sm text-destructive">
-            {error.message || "The briefing could not be generated. Check your AI Gateway key."}
-          </p>
-        ) : null}
+        {errorText ? <p className="text-sm text-destructive">{errorText}</p> : null}
 
         {!signedIn ? (
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
@@ -96,8 +97,8 @@ export function PaperBriefingPanel({
           </div>
         ) : !canStream && !briefing ? (
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Add <code className="font-mono">AI_GATEWAY_API_KEY</code> to stream a live briefing.
-            Until then, Folium keeps a heuristic sketch from the abstract.
+            Connect your OpenRouter key under Integrations in your account menu to stream a
+            live briefing. Until then, Folium keeps a heuristic sketch from the abstract.
           </p>
         ) : null}
 

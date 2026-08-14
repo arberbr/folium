@@ -1,6 +1,7 @@
-import { Show, SignInButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { NavLinks } from "@/components/nav-links";
+import { UserMenu } from "@/components/user-menu";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ControlButton } from "@/components/control-button";
 import { cn } from "@/lib/utils";
@@ -45,11 +46,7 @@ export function SiteHeader() {
             <ControlButton variant="outline" asChild>
               <Link href="/settings">Interests</Link>
             </ControlButton>
-            <UserButton
-              appearance={{
-                elements: { avatarBox: "size-8" },
-              }}
-            />
+            <UserMenu />
           </Show>
         </div>
       </div>

@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Paper pages are public so shared collections can link straight to them.
 // Note this deliberately does not cover /api/* — the AI routes stay behind
-// auth.protect() so an anonymous visitor cannot spend gateway credits.
+// auth.protect() so an anonymous visitor cannot spend another reader's OpenRouter credits.
 const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",

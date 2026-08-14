@@ -13,7 +13,7 @@ import { StatusToggle } from "@/components/status-toggle";
 import { Chip, ChipGroup } from "@/components/chip";
 import { ControlButton } from "@/components/control-button";
 import { heuristicBriefing } from "@/lib/ai/briefing";
-import { hasAiKey } from "@/lib/ai/models";
+import { hasAiAccess } from "@/lib/ai/models";
 import { getPaper, relatedPapers } from "@/lib/arxiv/client";
 import { categoryLabel } from "@/lib/arxiv/categories";
 import { Latex } from "@/components/latex";
@@ -89,10 +89,11 @@ export default async function PaperPage({
     );
   }
 
-  const [libraryItem, cached, shelves] = await Promise.all([
+  const [libraryItem, cached, shelves, aiAccess] = await Promise.all([
     userId ? getLibraryItem(userId, paper.id) : Promise.resolve(undefined),
     getCachedBriefing(paper.id),
     userId ? getCollections(userId) : Promise.resolve([]),
+    hasAiAccess(userId),
     cachePaper(paper),
   ]);
 
@@ -171,11 +172,11 @@ export default async function PaperPage({
         <PaperBriefingPanel
           arxivId={paper.id}
           initial={briefing}
-          canStream={hasAiKey() && signedIn}
+          canStream={aiAccess && signedIn}
           cached={Boolean(cached)}
           signedIn={signedIn}
         />
-        <PaperChat arxivId={paper.id} signedIn={signedIn} />
+        <PaperChat arxivId={paper.id} signedIn={signedIn} canChat={aiAccess && signedIn} />
       </div>
 
       <section className="space-y-4">

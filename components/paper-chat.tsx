@@ -5,17 +5,22 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { ArrowUp } from "lucide-react";
 import { ControlButton } from "@/components/control-button";
+import { Markdown } from "@/components/markdown";
 import { SignInPrompt } from "@/components/sign-in-prompt";
+import { readableAiError } from "@/lib/ai/error-message";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 
 export function PaperChat({
   arxivId,
   signedIn = true,
+  canChat,
 }: {
   arxivId: string;
   /** The chat endpoint requires auth, so signed-out readers get a prompt. */
   signedIn?: boolean;
+  /** False when the reader has no OpenRouter key — the composer would only 503. */
+  canChat: boolean;
 }) {
   const [input, setInput] = useState("");
   const transport = useMemo(
@@ -27,8 +32,14 @@ export function PaperChat({
     [arxivId],
   );
 
-  const { messages, sendMessage, status } = useChat({ transport });
+  const { messages, sendMessage, status, error } = useChat({ transport });
   const busy = status === "submitted" || status === "streaming";
+  // canChat is only computed at page render, so it cannot catch a key revoked or
+  // exhausted mid-conversation — that surfaces here instead.
+  const errorText = readableAiError(
+    error,
+    "The answer could not be generated. Check your OpenRouter key.",
+  );
 
   return (
     <Card className="h-full">
@@ -52,13 +63,42 @@ export function PaperChat({
                   : "mr-8 rounded-xl border border-border/80 px-4 py-3 text-sm leading-relaxed"
               }
             >
-              {message.parts.map((part, index) =>
-                part.type === "text" ? <p key={`${message.id}-${index}`}>{part.text}</p> : null,
-              )}
+              {message.parts.map((part, index) => {
+                if (part.type !== "text") return null;
+                const key = `${message.id}-${index}`;
+                // A reader's own question is literal text — rendering it as markdown
+                // would mangle a question that happens to contain * or _.
+                return message.role === "user" ? (
+                  <p key={key} className="whitespace-pre-wrap">
+                    {part.text}
+                  </p>
+                ) : (
+                  <Markdown key={key}>{part.text}</Markdown>
+                );
+              })}
             </article>
           ))}
+          {errorText ? (
+            <p className="mr-8 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm leading-relaxed text-destructive">
+              {errorText}
+            </p>
+          ) : null}
         </div>
-        {signedIn ? (
+        {!signedIn ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Sign in to ask questions about this paper.
+            </p>
+            <SignInPrompt label="Sign in" />
+          </div>
+        ) : !canChat ? (
+          <div className="rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Connect your OpenRouter key under Integrations in your account menu to ask
+              questions about this paper.
+            </p>
+          </div>
+        ) : (
           <form
             className="flex items-end gap-2"
             onSubmit={(event) => {
@@ -78,13 +118,6 @@ export function PaperChat({
               <ArrowUp />
             </ControlButton>
           </form>
-        ) : (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
-            <p className="text-sm text-muted-foreground">
-              Sign in to ask questions about this paper.
-            </p>
-            <SignInPrompt label="Sign in" />
-          </div>
         )}
       </CardContent>
     </Card>

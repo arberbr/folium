@@ -3,6 +3,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import {
+  DISCONNECTED,
+  clearOpenRouterKey,
+  getOpenRouterConnection,
+  saveOpenRouterKey,
+  type OpenRouterConnection,
+} from "@/lib/ai/openrouter";
+import {
   addToCollection,
   createCollection,
   deleteCollection,
@@ -111,4 +118,23 @@ export async function saveInterestsAction(interests: string[]) {
   await updateInterests(userId, interests);
   revalidatePath("/today");
   revalidatePath("/settings");
+}
+
+export async function getOpenRouterConnectionAction(): Promise<OpenRouterConnection> {
+  const userId = await requireUserId();
+  return getOpenRouterConnection(userId);
+}
+
+export async function saveOpenRouterKeyAction(key: string) {
+  const userId = await requireUserId();
+  const result = await saveOpenRouterKey(userId, key);
+  if (result.ok) revalidatePath("/paper/[id]", "page");
+  return result;
+}
+
+export async function disconnectOpenRouterAction() {
+  const userId = await requireUserId();
+  await clearOpenRouterKey(userId);
+  revalidatePath("/paper/[id]", "page");
+  return DISCONNECTED;
 }

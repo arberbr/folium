@@ -10,21 +10,20 @@ import {
 } from "ai";
 import { auth } from "@clerk/nextjs/server";
 import { paperContext } from "@/lib/ai/briefing";
-import { MODELS, hasAiKey } from "@/lib/ai/models";
+import { NO_MODEL_MESSAGE, resolveModel } from "@/lib/ai/models";
 import { briefingSchema } from "@/lib/ai/schema";
 import { getCachedPaper, saveBriefing } from "@/lib/data/papers";
 
+const UNAUTHORIZED = Response.json({ error: "Unauthorized" }, { status: 401 });
+
 async function requireUser() {
   const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
+  return userId;
 }
 
 export async function POST_ANALYZE(req: Request) {
-  const denied = await requireUser();
-  if (denied) return denied;
+  const userId = await requireUser();
+  if (!userId) return UNAUTHORIZED;
 
   const body = (await req.json()) as { arxivId?: string };
   if (!body.arxivId) {
@@ -36,15 +35,13 @@ export async function POST_ANALYZE(req: Request) {
     return Response.json({ error: "Paper not found" }, { status: 404 });
   }
 
-  if (!hasAiKey()) {
-    return Response.json(
-      { error: "Add AI_GATEWAY_API_KEY to stream a live briefing." },
-      { status: 503 },
-    );
+  const briefingModel = await resolveModel(userId, "briefing");
+  if (!briefingModel) {
+    return Response.json({ error: NO_MODEL_MESSAGE }, { status: 503 });
   }
 
   const result = streamText({
-    model: MODELS.briefing,
+    model: briefingModel.model,
     output: Output.object({ schema: briefingSchema }),
     system:
       "You are Folium, a severe but generous research editor. Ground every claim in the abstract. Never invent citations, results, or datasets. Prefer concrete verbs over hype.",
@@ -53,7 +50,7 @@ export async function POST_ANALYZE(req: Request) {
 
   void result.output.then(async (output) => {
     if (output) {
-      await saveBriefing(paper.id, output, MODELS.briefing);
+      await saveBriefing(paper.id, output, briefingModel.id);
     }
   });
 
@@ -63,8 +60,8 @@ export async function POST_ANALYZE(req: Request) {
 }
 
 export async function POST_CHAT(req: Request) {
-  const denied = await requireUser();
-  if (denied) return denied;
+  const userId = await requireUser();
+  if (!userId) return UNAUTHORIZED;
 
   const { messages, arxivId }: { messages: UIMessage[]; arxivId?: string } =
     await req.json();
@@ -78,15 +75,13 @@ export async function POST_CHAT(req: Request) {
     return Response.json({ error: "Paper not found" }, { status: 404 });
   }
 
-  if (!hasAiKey()) {
-    return Response.json(
-      { error: "Add AI_GATEWAY_API_KEY to chat with a paper." },
-      { status: 503 },
-    );
+  const chatModel = await resolveModel(userId, "chat");
+  if (!chatModel) {
+    return Response.json({ error: NO_MODEL_MESSAGE }, { status: 503 });
   }
 
   const result = streamText({
-    model: MODELS.chat,
+    model: chatModel.model,
     system: `You are Folium, an evidence-bound reading partner. Answer only from this paper's title, authors, categories, and abstract. If the abstract does not contain the answer, say so and suggest what the PDF would need to show. Quote short phrases when helpful.
 
 ${paperContext(paper)}`,
