@@ -3,14 +3,13 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useServerAction } from "@/hooks/use-server-action";
 import { updatePaperStatusAction } from "@/lib/actions";
-import type { ReadingStatus } from "@/lib/db/schema";
+import { type ReadingStatus, readingStatuses } from "@/lib/db/schema";
+import { READING_STATUS_LABEL } from "@/lib/reading-status";
 
-const OPTIONS: { value: ReadingStatus; label: string }[] = [
-  { value: "queued", label: "Queue" },
-  { value: "reading", label: "Reading" },
-  { value: "done", label: "Read" },
-  { value: "skipped", label: "Skip" },
-];
+const OPTIONS = readingStatuses.map((value) => ({
+  value,
+  label: READING_STATUS_LABEL[value],
+}));
 
 export function StatusToggle({
   arxivId,

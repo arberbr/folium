@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { PageHeader } from "@/components/page-header";
 import { PaperCard } from "@/components/paper-card";
+import { MissingPapersNotice, PaperGrid } from "@/components/paper-grid";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getPublicCollectionByShareToken } from "@/lib/data/user";
 
@@ -40,17 +41,12 @@ export default async function SharedCollectionPage({
         <p className="text-sm text-muted-foreground">This collection has no papers yet.</p>
       ) : (
         <>
-          {missing > 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {missing} paper{missing === 1 ? "" : "s"} in this collection could not be loaded from
-              arXiv right now.
-            </p>
-          ) : null}
-          <section className="grid gap-5 md:grid-cols-2">
+          <MissingPapersNotice missing={missing} />
+          <PaperGrid>
             {papers.map((paper) => (
               <PaperCard key={paper.id} paper={paper} />
             ))}
-          </section>
+          </PaperGrid>
         </>
       )}
     </div>

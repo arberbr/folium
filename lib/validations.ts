@@ -36,6 +36,12 @@ export const openRouterKeySchema = z
   .min(1)
   .refine((key) => key.startsWith("sk-or-"), "OpenRouter keys start with “sk-or-”.");
 
+export const uiMessageSchema = z.object({
+  id: z.string().min(1),
+  role: z.enum(["system", "user", "assistant"]),
+  parts: z.array(z.looseObject({ type: z.string().min(1) })).min(1),
+});
+
 export const analyzeBodySchema = z.object({
   arxivId: arxivIdSchema,
 });
@@ -43,7 +49,7 @@ export const analyzeBodySchema = z.object({
 export const chatBodySchema = z
   .object({
     arxivId: arxivIdSchema,
-    messages: z.array(z.unknown()).max(CHAT_MAX_MESSAGES, "Too many chat messages"),
+    messages: z.array(uiMessageSchema).max(CHAT_MAX_MESSAGES, "Too many chat messages"),
   })
   .superRefine((body, ctx) => {
     const size = JSON.stringify(body.messages).length;

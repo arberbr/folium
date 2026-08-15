@@ -33,5 +33,8 @@ The only thing to fill in is **Clerk** — create an application at [dashboard.c
 Then:
 
 ```bash
+pnpm db:migrate
 pnpm dev
 ```
+
+Migrations live in `drizzle/` and also run once on server boot (`instrumentation.ts`), so a fresh local file at `./data/local.db` is created automatically. Use `pnpm db:migrate` when pointing `TURSO_DATABASE_URL` at a remote Turso database.

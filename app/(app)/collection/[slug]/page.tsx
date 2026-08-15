@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CollectionActions } from "@/components/collection-actions";
 import { ControlButton } from "@/components/control-button";
 import { PaperCard } from "@/components/paper-card";
+import { MissingPapersNotice, PaperGrid } from "@/components/paper-grid";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getCollectionBySlug } from "@/lib/data/user";
 import { originFromForwarded } from "@/lib/http/origin";
@@ -73,13 +74,8 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
         </p>
       ) : (
         <>
-          {missing > 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {missing} paper{missing === 1 ? "" : "s"} in this collection could not be loaded from
-              arXiv right now.
-            </p>
-          ) : null}
-          <section className="grid gap-5 md:grid-cols-2">
+          <MissingPapersNotice missing={missing} />
+          <PaperGrid>
             {papers.map((paper) => (
               <PaperCard
                 key={paper.id}
@@ -87,7 +83,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
                 collection={{ id: collection.id, name: collection.name }}
               />
             ))}
-          </section>
+          </PaperGrid>
         </>
       )}
     </div>

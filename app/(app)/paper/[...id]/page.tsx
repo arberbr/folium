@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { ExternalLink, FileText, Folder } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import { AddToShelf } from "@/components/add-to-shelf";
 import { Chip, ChipGroup } from "@/components/chip";
 import { ControlButton } from "@/components/control-button";
@@ -9,30 +9,29 @@ import { Latex } from "@/components/latex";
 import { PaperBriefingPanel } from "@/components/paper-briefing";
 import { PaperCard } from "@/components/paper-card";
 import { PaperChat } from "@/components/paper-chat";
+import { PaperGrid } from "@/components/paper-grid";
 import { PaperGridSkeleton } from "@/components/paper-skeletons";
 import { SaveButton } from "@/components/save-button";
 import { SignInPrompt } from "@/components/sign-in-prompt";
 import { StatusToggle } from "@/components/status-toggle";
 import { heuristicBriefing } from "@/lib/ai/briefing";
-import { hasAiAccess } from "@/lib/ai/models";
+import { hasAiAccess, MODELS } from "@/lib/ai/models";
 import { categoryLabel } from "@/lib/arxiv/categories";
-import { getPaper, relatedPapers } from "@/lib/arxiv/client";
+import { relatedPapers } from "@/lib/arxiv/client";
 import { arxivIdFromRoute } from "@/lib/arxiv/ids";
 import { toPlainText } from "@/lib/arxiv/latex";
 import type { ArxivPaper } from "@/lib/arxiv/types";
-import { cachePaper, getCachedBriefing } from "@/lib/data/papers";
+import { getCachedBriefing, loadPaper } from "@/lib/data/papers";
 import { getCollections, getLibraryItem } from "@/lib/data/user";
 import { collectionHref, formatAuthors, formatExactDate } from "@/lib/format";
 
+const paperById = cache(loadPaper);
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string[] }> }) {
   const { id } = await params;
-  try {
-    const paper = await getPaper(arxivIdFromRoute(id));
-    // Document titles are plain text — LaTeX has to be flattened, not rendered.
-    return { title: paper ? toPlainText(paper.title) : "Paper" };
-  } catch {
-    return { title: "Paper" };
-  }
+  const paper = await paperById(arxivIdFromRoute(id));
+  // Document titles are plain text — LaTeX has to be flattened, not rendered.
+  return { title: paper ? toPlainText(paper.title) : "Paper" };
 }
 
 // Two more arXiv searches, and it sits below the fold — stream it so the paper
@@ -50,11 +49,11 @@ async function RelatedPapers({ paper }: { paper: ArxivPaper }) {
   }
 
   return (
-    <div className="grid gap-5 md:grid-cols-2">
+    <PaperGrid>
       {related.map((item) => (
         <PaperCard key={item.id} paper={item} compact />
       ))}
-    </div>
+    </PaperGrid>
   );
 }
 
@@ -62,13 +61,7 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
   const { userId } = await auth();
   const { id } = await params;
   const arxivId = arxivIdFromRoute(id);
-
-  let paper: ArxivPaper | null = null;
-  try {
-    paper = await getPaper(arxivId);
-  } catch {
-    paper = null;
-  }
+  const paper = await paperById(arxivId);
 
   if (!paper) {
     return (
@@ -84,10 +77,9 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
 
   const [libraryItem, cached, shelves, aiAccess] = await Promise.all([
     userId ? getLibraryItem(userId, paper.id) : Promise.resolve(undefined),
-    getCachedBriefing(paper.id),
+    userId ? getCachedBriefing(userId, paper.id, MODELS.briefing) : Promise.resolve(undefined),
     userId ? getCollections(userId) : Promise.resolve([]),
     hasAiAccess(userId),
-    cachePaper(paper),
   ]);
 
   const briefing = cached?.briefing ?? heuristicBriefing(paper);

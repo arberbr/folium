@@ -59,8 +59,17 @@ describe("analyzeBodySchema", () => {
 });
 
 describe("chatBodySchema", () => {
+  const message = {
+    id: "msg_1",
+    role: "user" as const,
+    parts: [{ type: "text", text: "hi" }],
+  };
+
   it("caps the message list", () => {
-    const messages = Array.from({ length: CHAT_MAX_MESSAGES + 1 }, () => ({ role: "user" }));
+    const messages = Array.from({ length: CHAT_MAX_MESSAGES + 1 }, (_, index) => ({
+      ...message,
+      id: `msg_${index}`,
+    }));
     const result = parseJsonBody(chatBodySchema, { arxivId: "1706.03762", messages });
     expect(result).toEqual({ ok: false, error: "Too many chat messages" });
   });
@@ -68,8 +77,24 @@ describe("chatBodySchema", () => {
   it("accepts a small payload", () => {
     const result = parseJsonBody(chatBodySchema, {
       arxivId: "1706.03762",
-      messages: [{ role: "user", parts: [{ type: "text", text: "hi" }] }],
+      messages: [message],
     });
     expect(result.ok).toBe(true);
+  });
+
+  it("rejects a message with no parts", () => {
+    const result = parseJsonBody(chatBodySchema, {
+      arxivId: "1706.03762",
+      messages: [{ id: "msg_1", role: "user" }],
+    });
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects a message with an unknown role", () => {
+    const result = parseJsonBody(chatBodySchema, {
+      arxivId: "1706.03762",
+      messages: [{ id: "msg_1", role: "moderator", parts: [{ type: "text", text: "hi" }] }],
+    });
+    expect(result.ok).toBe(false);
   });
 });

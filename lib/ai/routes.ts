@@ -12,7 +12,7 @@ import { paperContext } from "@/lib/ai/briefing";
 import { NO_MODEL_MESSAGE, resolveModel } from "@/lib/ai/models";
 import { briefingSchema } from "@/lib/ai/schema";
 import { requireUserId } from "@/lib/auth";
-import { getCachedPaper, saveBriefing } from "@/lib/data/papers";
+import { loadPaper, saveBriefing } from "@/lib/data/papers";
 import { analyzeBodySchema, chatBodySchema, parseJsonBody } from "@/lib/validations";
 
 export async function POST_ANALYZE(req: Request) {
@@ -30,7 +30,7 @@ export async function POST_ANALYZE(req: Request) {
     return Response.json({ error: body.error }, { status: 400 });
   }
 
-  const paper = await getCachedPaper(body.data.arxivId);
+  const paper = await loadPaper(body.data.arxivId);
   if (!paper) {
     return Response.json({ error: "Paper not found" }, { status: 404 });
   }
@@ -50,7 +50,7 @@ export async function POST_ANALYZE(req: Request) {
 
   void Promise.resolve(result.output)
     .then(async (output) => {
-      if (output) await saveBriefing(paper.id, output, briefingModel.id);
+      if (output) await saveBriefing(userId, paper.id, output, briefingModel.id);
     })
     .catch(() => {
       // Stream already left the process; a persist failure must not become an unhandled rejection.
@@ -76,7 +76,7 @@ export async function POST_CHAT(req: Request) {
     return Response.json({ error: body.error }, { status: 400 });
   }
 
-  const paper = await getCachedPaper(body.data.arxivId);
+  const paper = await loadPaper(body.data.arxivId);
   if (!paper) {
     return Response.json({ error: "Paper not found" }, { status: 404 });
   }
@@ -91,6 +91,7 @@ export async function POST_CHAT(req: Request) {
     system: `You are arXivDesk, an evidence-bound reading partner. Answer only from this paper's title, authors, categories, and abstract. If the abstract does not contain the answer, say so and suggest what the PDF would need to show. Quote short phrases when helpful.
 
 ${paperContext(paper)}`,
+    // Zod already required id, role, and typed parts; the SDK's part union is wider than we persist.
     messages: await convertToModelMessages(body.data.messages as UIMessage[]),
   });
 

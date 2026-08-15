@@ -1,14 +1,13 @@
-import { eq, inArray } from "drizzle-orm";
-import { db, ensureSchema } from "@/lib/db";
-import { analyses, paperCache } from "@/lib/db/schema";
-import { getPaper, getPapersByIds } from "@/lib/arxiv/client";
-import type { ArxivPaper } from "@/lib/arxiv/types";
+import { and, eq, inArray } from "drizzle-orm";
 import type { PaperBriefing } from "@/lib/ai/schema";
-import { isFreshCache } from "@/lib/data/cache";
+import { getPaper, getPapersByIds } from "@/lib/arxiv/client";
 import { normalizeArxivId } from "@/lib/arxiv/ids";
+import type { ArxivPaper } from "@/lib/arxiv/types";
+import { isFreshCache } from "@/lib/data/cache";
+import { db } from "@/lib/db";
+import { analyses, paperCache } from "@/lib/db/schema";
 
 export async function cachePaper(paper: ArxivPaper) {
-  await ensureSchema();
   await db
     .insert(paperCache)
     .values({
@@ -22,15 +21,16 @@ export async function cachePaper(paper: ArxivPaper) {
     });
 }
 
-export async function getCachedPaper(id: string): Promise<ArxivPaper | null> {
-  await ensureSchema();
+/** Live-fetch on miss/stale; fall back to a stale row when arXiv is down. */
+export async function loadPaper(id: string): Promise<ArxivPaper | null> {
+  const arxivId = normalizeArxivId(id);
   const row = await db.query.paperCache.findFirst({
-    where: eq(paperCache.arxivId, id),
+    where: eq(paperCache.arxivId, arxivId),
   });
   if (row && isFreshCache(row.fetchedAt)) return row.payload;
 
   try {
-    const paper = await getPaper(id);
+    const paper = await getPaper(arxivId);
     if (paper) await cachePaper(paper);
     return paper ?? row?.payload ?? null;
   } catch {
@@ -39,7 +39,6 @@ export async function getCachedPaper(id: string): Promise<ArxivPaper | null> {
 }
 
 export async function getCachedPapersByIds(ids: string[]): Promise<ArxivPaper[]> {
-  await ensureSchema();
   const unique = [...new Set(ids.filter(Boolean).map(normalizeArxivId))];
   if (!unique.length) return [];
 
@@ -47,9 +46,7 @@ export async function getCachedPapersByIds(ids: string[]): Promise<ArxivPaper[]>
     where: inArray(paperCache.arxivId, unique),
   });
   const byId = new Map(rows.map((row) => [row.arxivId, row.payload]));
-  return unique
-    .map((id) => byId.get(id))
-    .filter((paper): paper is ArxivPaper => Boolean(paper));
+  return unique.map((id) => byId.get(id)).filter((paper): paper is ArxivPaper => Boolean(paper));
 }
 
 /**
@@ -76,25 +73,33 @@ export async function papersByIdsWithFallback(ids: string[]): Promise<ArxivPaper
   }
 }
 
-export async function getCachedBriefing(arxivId: string) {
-  await ensureSchema();
+export async function getCachedBriefing(userId: string, arxivId: string, model: string) {
   return db.query.analyses.findFirst({
-    where: eq(analyses.arxivId, arxivId),
+    where: and(
+      eq(analyses.userId, userId),
+      eq(analyses.arxivId, arxivId),
+      eq(analyses.model, model),
+    ),
   });
 }
 
-export async function saveBriefing(arxivId: string, briefing: PaperBriefing, model: string) {
-  await ensureSchema();
+export async function saveBriefing(
+  userId: string,
+  arxivId: string,
+  briefing: PaperBriefing,
+  model: string,
+) {
   await db
     .insert(analyses)
     .values({
+      userId,
       arxivId,
       briefing,
       model,
       createdAt: new Date(),
     })
     .onConflictDoUpdate({
-      target: analyses.arxivId,
-      set: { briefing, model, createdAt: new Date() },
+      target: [analyses.userId, analyses.arxivId, analyses.model],
+      set: { briefing, createdAt: new Date() },
     });
 }

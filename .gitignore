@@ -46,7 +46,6 @@ next-env.d.ts
 
 # local database
 /data
-/drizzle
 .flare/
 
 # lefthook local overrides

@@ -63,12 +63,20 @@ export const collectionPapers = sqliteTable(
   (table) => [primaryKey({ columns: [table.collectionId, table.arxivId] })],
 );
 
-export const analyses = sqliteTable("analyses", {
-  arxivId: text("arxiv_id").primaryKey(),
-  briefing: text("briefing", { mode: "json" }).$type<PaperBriefing>().notNull(),
-  model: text("model").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-});
+export const analyses = sqliteTable(
+  "analyses",
+  {
+    userId: text("user_id").notNull(),
+    arxivId: text("arxiv_id").notNull(),
+    model: text("model").notNull(),
+    briefing: text("briefing", { mode: "json" }).$type<PaperBriefing>().notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.arxivId, table.model] }),
+    index("analyses_user_idx").on(table.userId),
+  ],
+);
 
 export const paperCache = sqliteTable("paper_cache", {
   arxivId: text("arxiv_id").primaryKey(),

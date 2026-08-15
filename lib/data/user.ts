@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { customAlphabet, nanoid } from "nanoid";
-import { db, ensureSchema } from "@/lib/db";
+import { db } from "@/lib/db";
 import { collectionPapers, collections, libraryItems, profiles, type ReadingStatus } from "@/lib/db/schema";
 import { DEFAULT_INTERESTS } from "@/lib/arxiv/categories";
 import { uniqueSlug } from "@/lib/format";
@@ -8,7 +8,6 @@ import { uniqueSlug } from "@/lib/format";
 const createShareToken = customAlphabet("23456789abcdefghjkmnpqrstuvwxyz", 12);
 
 export async function getOrCreateProfile(userId: string) {
-  await ensureSchema();
   const existing = await db.query.profiles.findFirst({
     where: eq(profiles.userId, userId),
   });
@@ -35,7 +34,6 @@ export async function updateInterests(userId: string, interests: string[]) {
 }
 
 export async function getLibrary(userId: string) {
-  await ensureSchema();
   return db.query.libraryItems.findMany({
     where: eq(libraryItems.userId, userId),
     orderBy: [desc(libraryItems.updatedAt)],
@@ -43,7 +41,6 @@ export async function getLibrary(userId: string) {
 }
 
 export async function getLibraryItem(userId: string, arxivId: string) {
-  await ensureSchema();
   return db.query.libraryItems.findFirst({
     where: and(eq(libraryItems.userId, userId), eq(libraryItems.arxivId, arxivId)),
   });
@@ -54,7 +51,6 @@ export async function upsertLibraryItem(input: {
   arxivId: string;
   status?: ReadingStatus;
 }) {
-  await ensureSchema();
   const existing = await getLibraryItem(input.userId, input.arxivId);
   const now = new Date();
 
@@ -82,7 +78,6 @@ export async function upsertLibraryItem(input: {
 }
 
 export async function removeLibraryItem(userId: string, arxivId: string) {
-  await ensureSchema();
   await db
     .delete(libraryItems)
     .where(and(eq(libraryItems.userId, userId), eq(libraryItems.arxivId, arxivId)));
@@ -106,7 +101,6 @@ async function paperIdsByCollection(collectionIds: string[]) {
 }
 
 export async function getCollections(userId: string) {
-  await ensureSchema();
   const rows = await db
     .select()
     .from(collections)
@@ -122,7 +116,6 @@ export async function getCollections(userId: string) {
 }
 
 export async function getCollectionBySlug(userId: string, slug: string) {
-  await ensureSchema();
   const collection = await db.query.collections.findFirst({
     where: and(eq(collections.userId, userId), eq(collections.slug, slug)),
   });
@@ -153,7 +146,6 @@ async function requireOwnedCollection(userId: string, collectionId: string) {
 }
 
 export async function createCollection(userId: string, name: string, description = "") {
-  await ensureSchema();
   const taken = await takenSlugs(userId);
   const collection = {
     id: nanoid(),
@@ -168,7 +160,6 @@ export async function createCollection(userId: string, name: string, description
 }
 
 export async function addToCollection(userId: string, collectionId: string, arxivId: string) {
-  await ensureSchema();
   const collection = await requireOwnedCollection(userId, collectionId);
   await db
     .insert(collectionPapers)
@@ -178,7 +169,6 @@ export async function addToCollection(userId: string, collectionId: string, arxi
 }
 
 export async function removeFromCollection(userId: string, collectionId: string, arxivId: string) {
-  await ensureSchema();
   const collection = await requireOwnedCollection(userId, collectionId);
   await db
     .delete(collectionPapers)
@@ -189,7 +179,6 @@ export async function removeFromCollection(userId: string, collectionId: string,
 }
 
 export async function renameCollection(userId: string, collectionId: string, name: string) {
-  await ensureSchema();
   const collection = await requireOwnedCollection(userId, collectionId);
   const taken = await takenSlugs(userId, collectionId);
   const slug = uniqueSlug(name, taken);
@@ -213,7 +202,6 @@ async function uniqueShareToken() {
 }
 
 export async function getPublicCollectionByShareToken(token: string) {
-  await ensureSchema();
   const [collection] = await db
     .select()
     .from(collections)
@@ -229,7 +217,6 @@ export async function getPublicCollectionByShareToken(token: string) {
 }
 
 export async function publishCollection(userId: string, collectionId: string) {
-  await ensureSchema();
   const collection = await requireOwnedCollection(userId, collectionId);
   if (collection.shareToken) return collection;
 
@@ -239,7 +226,6 @@ export async function publishCollection(userId: string, collectionId: string) {
 }
 
 export async function unpublishCollection(userId: string, collectionId: string) {
-  await ensureSchema();
   const collection = await requireOwnedCollection(userId, collectionId);
   const previousShareToken = collection.shareToken;
   await db.update(collections).set({ shareToken: null }).where(eq(collections.id, collectionId));
@@ -247,7 +233,6 @@ export async function unpublishCollection(userId: string, collectionId: string) 
 }
 
 export async function deleteCollection(userId: string, collectionId: string) {
-  await ensureSchema();
   const collection = await requireOwnedCollection(userId, collectionId);
 
   await db.transaction(async (tx) => {

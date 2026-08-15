@@ -8,24 +8,8 @@ import { toPlainText } from "@/lib/arxiv/latex";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import type { ReadingStatus } from "@/lib/db/schema";
 import { formatAuthors, formatPublished, paperHref } from "@/lib/format";
+import { READING_STATUS_LABEL } from "@/lib/reading-status";
 import { cn } from "@/lib/utils";
-
-function statusLabel(status: ReadingStatus) {
-  switch (status) {
-    case "queued":
-      return "Queue";
-    case "reading":
-      return "Reading";
-    case "done":
-      return "Read";
-    case "skipped":
-      return "Skipped";
-    default: {
-      const _exhaustive: never = status;
-      return _exhaustive;
-    }
-  }
-}
 
 export function PaperCard({
   paper,
@@ -55,7 +39,7 @@ export function PaperCard({
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <span className="font-mono text-[11px] tracking-wide text-primary">{paper.id}</span>
-            {status ? <Chip variant={status}>{statusLabel(status)}</Chip> : null}
+            {status ? <Chip variant={status}>{READING_STATUS_LABEL[status]}</Chip> : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <span className="text-[11px] text-muted-foreground">
