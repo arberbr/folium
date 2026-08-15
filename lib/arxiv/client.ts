@@ -1,5 +1,5 @@
-import { toPlainText } from "./latex";
 import { isArxivId, normalizeArxivId } from "./ids";
+import { toPlainText } from "./latex";
 import { parseArxivFeed } from "./parse";
 import type { ArxivPaper, ArxivSearchParams, ArxivSearchResult } from "./types";
 

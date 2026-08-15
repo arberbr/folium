@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "biome lint",
     "format": "biome format --write",
+    "check": "biome check --write --files-ignore-unknown=true --no-errors-on-unmatched",
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
@@ -53,12 +54,14 @@
     "babel-plugin-react-compiler": "1.0.0",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
+    "lefthook": "^2.1.10",
     "tailwindcss": "^4",
     "typescript": "^7"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "lefthook"
     ]
   }
 }

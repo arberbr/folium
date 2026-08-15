@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { ControlButton } from "@/components/control-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { CATEGORY_GROUPS, type CategoryGroup } from "@/lib/arxiv/categories";
 import { saveInterestsAction } from "@/lib/actions";
+import { CATEGORY_GROUPS, type CategoryGroup } from "@/lib/arxiv/categories";
 
 export function InterestsForm({ initial }: { initial: string[] }) {
   const [selected, setSelected] = useState<string[]>(initial);

@@ -1,11 +1,11 @@
+import { Show } from "@clerk/nextjs";
 import Link from "next/link";
 import { connection } from "next/server";
-import { Show } from "@clerk/nextjs";
-import { PageShell } from "@/components/site-header";
 import { ControlButton } from "@/components/control-button";
+import { Latex } from "@/components/latex";
+import { PageShell } from "@/components/site-header";
 import { searchArxiv } from "@/lib/arxiv/client";
 import { toPlainText } from "@/lib/arxiv/latex";
-import { Latex } from "@/components/latex";
 import { formatAuthors, paperHref } from "@/lib/format";
 import { cn, sample } from "@/lib/utils";
 

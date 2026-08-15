@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { FolioShot } from "@/components/folio-shot";
 import { ControlButton } from "@/components/control-button";
+import { FolioShot } from "@/components/folio-shot";
 
 export const metadata = {
   title: "Docs",

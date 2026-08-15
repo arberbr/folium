@@ -1,13 +1,13 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { CategoryPills } from "@/components/category-pills";
+import { ControlButton } from "@/components/control-button";
 import { PaperCard } from "@/components/paper-card";
 import { SearchBar } from "@/components/search-bar";
-import { searchArxiv } from "@/lib/arxiv/client";
 import { categoryLabel, FEATURED_CATEGORIES } from "@/lib/arxiv/categories";
-import { auth } from "@clerk/nextjs/server";
-import { getOrCreateProfile } from "@/lib/data/user";
-import { ControlButton } from "@/components/control-button";
+import { searchArxiv } from "@/lib/arxiv/client";
 import type { ArxivSearchResult } from "@/lib/arxiv/types";
+import { getOrCreateProfile } from "@/lib/data/user";
 
 export default async function ExplorePage({
   searchParams,

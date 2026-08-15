@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import {
   convertToModelMessages,
   createTextStreamResponse,
@@ -8,7 +9,6 @@ import {
   toUIMessageStream,
   type UIMessage,
 } from "ai";
-import { auth } from "@clerk/nextjs/server";
 import { paperContext } from "@/lib/ai/briefing";
 import { NO_MODEL_MESSAGE, resolveModel } from "@/lib/ai/models";
 import { briefingSchema } from "@/lib/ai/schema";

@@ -2,8 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { CollectionActions } from "@/components/collection-actions";
-import { PaperCard } from "@/components/paper-card";
 import { ControlButton } from "@/components/control-button";
+import { PaperCard } from "@/components/paper-card";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getCollectionBySlug } from "@/lib/data/user";
 

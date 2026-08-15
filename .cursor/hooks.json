@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": "node .cursor/hooks/format-lint.mjs",
+        "timeout": 30
+      }
+    ]
+  }
+}

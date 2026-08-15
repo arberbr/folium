@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { PageShell } from "@/components/site-header";
 import { ControlButton } from "@/components/control-button";
+import { PageShell } from "@/components/site-header";
 
 export default function NotFound() {
   return (

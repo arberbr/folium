@@ -1,10 +1,11 @@
 "use client";
 
+import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ControlButton } from "@/components/control-button";
+import { ShareCollectionButton } from "@/components/share-collection-button";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShareCollectionButton } from "@/components/share-collection-button";
 import { deleteCollectionAction, renameCollectionAction } from "@/lib/actions";
 import { collectionHref } from "@/lib/format";
 

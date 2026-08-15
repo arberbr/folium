@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { Check, Copy, Globe } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { type ReactNode, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { ControlButton } from "@/components/control-button";
 import {

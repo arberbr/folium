@@ -1,9 +1,9 @@
 import { Show, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { NavLinks } from "@/components/nav-links";
-import { UserMenu } from "@/components/user-menu";
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ControlButton } from "@/components/control-button";
+import { NavLinks } from "@/components/nav-links";
+import { ThemeSwitcher } from "@/components/theme-switcher";
+import { UserMenu } from "@/components/user-menu";
 import { cn } from "@/lib/utils";
 
 const SHELL_CONTAINER = "mx-auto w-full max-w-6xl px-5 sm:px-8";

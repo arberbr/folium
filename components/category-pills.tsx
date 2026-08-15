@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Chip, ChipGroup } from "@/components/chip";
-import { FEATURED_CATEGORIES, categoryLabel } from "@/lib/arxiv/categories";
+import { categoryLabel, FEATURED_CATEGORIES } from "@/lib/arxiv/categories";
 
 export function CategoryPills({ active, interests }: { active?: string; interests?: string[] }) {
   const fields = interests?.length ? interests : FEATURED_CATEGORIES.map((category) => category.id);

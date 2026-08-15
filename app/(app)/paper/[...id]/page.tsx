@@ -1,28 +1,28 @@
 import { auth } from "@clerk/nextjs/server";
+import { ExternalLink, FileText, Folder } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ExternalLink, FileText, Folder } from "lucide-react";
-import { PaperGridSkeleton } from "@/components/paper-skeletons";
 import { AddToShelf } from "@/components/add-to-shelf";
+import { Chip, ChipGroup } from "@/components/chip";
+import { ControlButton } from "@/components/control-button";
+import { Latex } from "@/components/latex";
 import { PaperBriefingPanel } from "@/components/paper-briefing";
 import { PaperCard } from "@/components/paper-card";
 import { PaperChat } from "@/components/paper-chat";
+import { PaperGridSkeleton } from "@/components/paper-skeletons";
 import { SaveButton } from "@/components/save-button";
 import { SignInPrompt } from "@/components/sign-in-prompt";
 import { StatusToggle } from "@/components/status-toggle";
-import { Chip, ChipGroup } from "@/components/chip";
-import { ControlButton } from "@/components/control-button";
 import { heuristicBriefing } from "@/lib/ai/briefing";
 import { hasAiAccess } from "@/lib/ai/models";
-import { getPaper, relatedPapers } from "@/lib/arxiv/client";
 import { categoryLabel } from "@/lib/arxiv/categories";
+import { getPaper, relatedPapers } from "@/lib/arxiv/client";
 import { arxivIdFromRoute } from "@/lib/arxiv/ids";
-import { Latex } from "@/components/latex";
 import { toPlainText } from "@/lib/arxiv/latex";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import { cachePaper, getCachedBriefing } from "@/lib/data/papers";
 import { getCollections, getLibraryItem } from "@/lib/data/user";
-import { formatAuthors, formatExactDate, collectionHref } from "@/lib/format";
+import { collectionHref, formatAuthors, formatExactDate } from "@/lib/format";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string[] }> }) {
   const { id } = await params;

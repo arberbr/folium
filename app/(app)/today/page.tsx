@@ -1,10 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
-import { PaperCard } from "@/components/paper-card";
 import { ControlButton } from "@/components/control-button";
+import { PaperCard } from "@/components/paper-card";
 import { searchArxiv } from "@/lib/arxiv/client";
-import { getOrCreateProfile } from "@/lib/data/user";
 import type { ArxivSearchResult } from "@/lib/arxiv/types";
+import { getOrCreateProfile } from "@/lib/data/user";
 
 const PAGE_SIZE = 50;
 

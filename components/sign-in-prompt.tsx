@@ -1,7 +1,7 @@
 "use client";
 
-import type { ComponentProps } from "react";
 import { SignInButton } from "@clerk/nextjs";
+import type { ComponentProps } from "react";
 import { ControlButton } from "@/components/control-button";
 
 type ControlButtonProps = ComponentProps<typeof ControlButton>;

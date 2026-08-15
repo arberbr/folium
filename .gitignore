@@ -48,3 +48,6 @@ next-env.d.ts
 /data
 /drizzle
 .flare/
+
+# lefthook local overrides
+lefthook-local.yml

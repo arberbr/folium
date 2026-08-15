@@ -1,8 +1,8 @@
 "use client";
 
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Search } from "lucide-react";
 import { ControlButton } from "@/components/control-button";
 import { Input } from "@/components/ui/input";
 

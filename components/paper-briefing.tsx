@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { useObject } from "@ai-sdk/react";
 import { Sparkles } from "lucide-react";
+import { useEffect } from "react";
 import { Chip, ChipGroup } from "@/components/chip";
 import { ControlButton } from "@/components/control-button";
 import { SignInPrompt } from "@/components/sign-in-prompt";
