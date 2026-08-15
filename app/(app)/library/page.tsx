@@ -26,15 +26,7 @@ export default async function LibraryPage() {
           {items.map((item) => {
             const paper = byId.get(item.arxivId);
             if (!paper) return null;
-            return (
-              <PaperCard
-                key={item.id}
-                paper={paper}
-                compact
-                status={item.status}
-                removable
-              />
-            );
+            return <PaperCard key={item.id} paper={paper} compact status={item.status} removable />;
           })}
         </section>
       )}

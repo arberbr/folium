@@ -64,14 +64,12 @@ export function PaperBriefingPanel({
       <CardHeader className="flex flex-row items-start justify-between gap-4 border-b">
         <div>
           <p className="text-xs tracking-[0.22em] text-primary uppercase">Briefing</p>
-          <CardTitle className="font-heading mt-1 text-2xl">What this paper is actually doing</CardTitle>
+          <CardTitle className="font-heading mt-1 text-2xl">
+            What this paper is actually doing
+          </CardTitle>
         </div>
         {canStream ? (
-          <ControlButton
-            variant="outline"
-            disabled={isLoading}
-            onClick={() => submit({ arxivId })}
-          >
+          <ControlButton variant="outline" disabled={isLoading} onClick={() => submit({ arxivId })}>
             <Sparkles />
             {cached ? "Regenerate" : "Analyze"}
           </ControlButton>
@@ -97,8 +95,8 @@ export function PaperBriefingPanel({
           </div>
         ) : !canStream && !briefing ? (
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Connect your OpenRouter key under Integrations in your account menu to stream a
-            live briefing. Until then, arXivDesk keeps a heuristic sketch from the abstract.
+            Connect your OpenRouter key under Integrations in your account menu to stream a live
+            briefing. Until then, arXivDesk keeps a heuristic sketch from the abstract.
           </p>
         ) : null}
 
@@ -119,7 +117,9 @@ export function PaperBriefingPanel({
             <BriefingList title="Limitations" items={briefing.limitations} />
             {briefing.whyItMatters ? (
               <section>
-                <h4 className="mb-2 text-xs tracking-[0.2em] text-primary uppercase">Why it matters</h4>
+                <h4 className="mb-2 text-xs tracking-[0.2em] text-primary uppercase">
+                  Why it matters
+                </h4>
                 <p className="text-sm leading-relaxed">{briefing.whyItMatters}</p>
               </section>
             ) : null}
@@ -131,13 +131,7 @@ export function PaperBriefingPanel({
   );
 }
 
-function BriefingList({
-  title,
-  items,
-}: {
-  title: string;
-  items?: (string | undefined)[] | null;
-}) {
+function BriefingList({ title, items }: { title: string; items?: (string | undefined)[] | null }) {
   const visible = items?.filter(Boolean) ?? [];
   if (!visible.length) return null;
   return (

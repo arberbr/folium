@@ -118,8 +118,7 @@ function filterGroups(groups: CategoryGroup[], query: string) {
 
     const categories = group.categories.filter(
       (category) =>
-        category.label.toLowerCase().includes(needle) ||
-        category.id.toLowerCase().includes(needle),
+        category.label.toLowerCase().includes(needle) || category.id.toLowerCase().includes(needle),
     );
     return categories.length ? [{ ...group, categories }] : [];
   });

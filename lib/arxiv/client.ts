@@ -5,8 +5,7 @@ import type { ArxivPaper, ArxivSearchParams, ArxivSearchResult } from "./types";
 
 const ARXIV_API = "https://export.arxiv.org/api/query";
 const USER_AGENT =
-  process.env.ARXIV_USER_AGENT ??
-  "arXivDesk/1.0 (https://github.com; arXiv research reading desk)";
+  process.env.ARXIV_USER_AGENT ?? "arXivDesk/1.0 (https://github.com; arXiv research reading desk)";
 
 function buildSearchQuery(params: ArxivSearchParams) {
   const clauses: string[] = [];
@@ -46,9 +45,7 @@ function resolveIdList(params: ArxivSearchParams) {
   return undefined;
 }
 
-export async function searchArxiv(
-  params: ArxivSearchParams = {},
-): Promise<ArxivSearchResult> {
+export async function searchArxiv(params: ArxivSearchParams = {}): Promise<ArxivSearchResult> {
   const url = new URL(ARXIV_API);
   const idList = resolveIdList(params);
   if (idList) {

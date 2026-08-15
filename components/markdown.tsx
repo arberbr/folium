@@ -56,9 +56,7 @@ const components: Components = {
     className ? (
       <code className={className}>{children}</code>
     ) : (
-      <code className="rounded bg-secondary px-1 py-0.5 font-mono text-[0.85em]">
-        {children}
-      </code>
+      <code className="rounded bg-secondary px-1 py-0.5 font-mono text-[0.85em]">{children}</code>
     ),
   pre: ({ children }) => (
     <pre className="overflow-x-auto rounded-lg border border-border/80 bg-secondary/50 p-3 font-mono text-xs leading-relaxed">

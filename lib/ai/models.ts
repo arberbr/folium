@@ -27,10 +27,7 @@ export type ResolvedModel = {
 };
 
 /** Returns null when the user has not connected a key — callers should answer 503. */
-export async function resolveModel(
-  userId: string,
-  role: ModelRole,
-): Promise<ResolvedModel | null> {
+export async function resolveModel(userId: string, role: ModelRole): Promise<ResolvedModel | null> {
   const key = await readOpenRouterKey(userId);
   if (!key) return null;
 

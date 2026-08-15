@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /**
@@ -11,6 +11,6 @@ export function cn(...inputs: ClassValue[]) {
  * that React may repeat.
  */
 export function sample<T>(items: readonly T[]): T | undefined {
-  if (!items.length) return undefined
-  return items[Math.floor(Math.random() * items.length)]
+  if (!items.length) return undefined;
+  return items[Math.floor(Math.random() * items.length)];
 }

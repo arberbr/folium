@@ -173,11 +173,31 @@
 
   .constellation {
     background-image:
-      radial-gradient(1px 1px at 12% 18%, color-mix(in oklch, var(--primary) 55%, transparent) 50%, transparent 51%),
-      radial-gradient(1.5px 1.5px at 78% 22%, color-mix(in oklch, var(--foreground) 22%, transparent) 50%, transparent 51%),
-      radial-gradient(1px 1px at 64% 72%, color-mix(in oklch, var(--primary) 35%, transparent) 50%, transparent 51%),
-      radial-gradient(1px 1px at 28% 84%, color-mix(in oklch, var(--foreground) 18%, transparent) 50%, transparent 51%),
-      radial-gradient(1.5px 1.5px at 92% 64%, color-mix(in oklch, var(--primary) 40%, transparent) 50%, transparent 51%);
+      radial-gradient(
+        1px 1px at 12% 18%,
+        color-mix(in oklch, var(--primary) 55%, transparent) 50%,
+        transparent 51%
+      ),
+      radial-gradient(
+        1.5px 1.5px at 78% 22%,
+        color-mix(in oklch, var(--foreground) 22%, transparent) 50%,
+        transparent 51%
+      ),
+      radial-gradient(
+        1px 1px at 64% 72%,
+        color-mix(in oklch, var(--primary) 35%, transparent) 50%,
+        transparent 51%
+      ),
+      radial-gradient(
+        1px 1px at 28% 84%,
+        color-mix(in oklch, var(--foreground) 18%, transparent) 50%,
+        transparent 51%
+      ),
+      radial-gradient(
+        1.5px 1.5px at 92% 64%,
+        color-mix(in oklch, var(--primary) 40%, transparent) 50%,
+        transparent 51%
+      );
   }
 
   .reveal {

@@ -23,7 +23,7 @@ export function StatusToggle({
   const [pending, startTransition] = useTransition();
 
   return (
-        <ToggleGroup
+    <ToggleGroup
       type="single"
       value={status ?? ""}
       onValueChange={(value) => {

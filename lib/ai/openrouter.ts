@@ -80,12 +80,13 @@ async function verifyKey(key: string) {
     return { ok: false as const, error: "OpenRouter rejected that key." };
   }
   if (!response.ok) {
-    return { ok: false as const, error: `OpenRouter returned ${response.status}. Try again later.` };
+    return {
+      ok: false as const,
+      error: `OpenRouter returned ${response.status}. Try again later.`,
+    };
   }
 
-  const body = (await response.json().catch(() => null)) as
-    | { data?: { label?: unknown } }
-    | null;
+  const body = (await response.json().catch(() => null)) as { data?: { label?: unknown } } | null;
   const label = typeof body?.data?.label === "string" ? body.data.label : null;
   return { ok: true as const, label };
 }

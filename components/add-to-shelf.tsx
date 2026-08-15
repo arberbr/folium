@@ -22,7 +22,8 @@ export function AddToShelf({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [membership, setMembership] = useState(
-    () => new Set(shelves.filter((shelf) => shelf.paperIds.includes(arxivId)).map((shelf) => shelf.id)),
+    () =>
+      new Set(shelves.filter((shelf) => shelf.paperIds.includes(arxivId)).map((shelf) => shelf.id)),
   );
 
   if (!shelves.length) return null;

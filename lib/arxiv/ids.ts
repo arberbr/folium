@@ -1,6 +1,10 @@
 /** Strip an optional `id:` prefix and version suffix (`v1`). */
 export function normalizeArxivId(raw: string) {
-  return raw.trim().replace(/^id:\s*/i, "").replace(/v\d+$/i, "").trim();
+  return raw
+    .trim()
+    .replace(/^id:\s*/i, "")
+    .replace(/v\d+$/i, "")
+    .trim();
 }
 
 /**

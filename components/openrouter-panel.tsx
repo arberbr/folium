@@ -72,9 +72,9 @@ export function OpenRouterPanel() {
       <header className="space-y-1">
         <h1 className="font-heading text-xl">Integrations</h1>
         <p className="text-sm text-muted-foreground">
-          arXivDesk runs every briefing and paper chat on your own model provider. Without a
-          key connected, papers still open — you just get a heuristic sketch of the abstract
-          instead of a live briefing.
+          arXivDesk runs every briefing and paper chat on your own model provider. Without a key
+          connected, papers still open — you just get a heuristic sketch of the abstract instead of
+          a live briefing.
         </p>
       </header>
 
@@ -132,8 +132,8 @@ export function OpenRouterPanel() {
               ) : null}
             </div>
             <p className="text-xs text-muted-foreground">
-              Your key is stored privately against your account and is only ever read on the
-              server to call OpenRouter. It is never sent back to the browser.
+              Your key is stored privately against your account and is only ever read on the server
+              to call OpenRouter. It is never sent back to the browser.
             </p>
           </form>
         ) : (
@@ -143,9 +143,7 @@ export function OpenRouterPanel() {
               <span>
                 <span className="block font-mono text-sm">••••{connection.hint}</span>
                 {connection.label ? (
-                  <span className="block text-xs text-muted-foreground">
-                    {connection.label}
-                  </span>
+                  <span className="block text-xs text-muted-foreground">{connection.label}</span>
                 ) : null}
               </span>
             </span>
@@ -158,12 +156,7 @@ export function OpenRouterPanel() {
               >
                 Replace
               </ControlButton>
-              <ControlButton
-                type="button"
-                variant="ghost"
-                disabled={pending}
-                onClick={disconnect}
-              >
+              <ControlButton type="button" variant="ghost" disabled={pending} onClick={disconnect}>
                 Disconnect
               </ControlButton>
             </span>

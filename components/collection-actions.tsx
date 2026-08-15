@@ -83,9 +83,7 @@ export function CollectionActions({
                 onChange={(event) => setTitle(event.target.value)}
                 autoFocus
               />
-              <DialogDescription>
-                The URL updates to match the new name.
-              </DialogDescription>
+              <DialogDescription>The URL updates to match the new name.</DialogDescription>
             </div>
             <DialogFooter>
               <ControlButton type="button" variant="outline" onClick={() => setRenameOpen(false)}>

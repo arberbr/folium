@@ -51,7 +51,8 @@ export function PaperChat({
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
           {messages.length === 0 ? (
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Questions are grounded in the title and abstract. If the PDF is required, arXivDesk will say so.
+              Questions are grounded in the title and abstract. If the PDF is required, arXivDesk
+              will say so.
             </p>
           ) : null}
           {messages.map((message) => (
@@ -94,8 +95,8 @@ export function PaperChat({
         ) : !canChat ? (
           <div className="rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Connect your OpenRouter key under Integrations in your account menu to ask
-              questions about this paper.
+              Connect your OpenRouter key under Integrations in your account menu to ask questions
+              about this paper.
             </p>
           </div>
         ) : (

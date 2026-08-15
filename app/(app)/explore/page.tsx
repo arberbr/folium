@@ -41,11 +41,7 @@ export default async function ExplorePage({
 
   const nextStart = start + result.maxResults;
   const prevStart = Math.max(0, start - 20);
-  const title = query
-    ? `Results for “${query}”`
-    : category
-      ? categoryLabel(category)
-      : "Explore";
+  const title = query ? `Results for “${query}”` : category ? categoryLabel(category) : "Explore";
 
   return (
     <div className="space-y-8">

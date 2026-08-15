@@ -24,11 +24,7 @@ import { cachePaper, getCachedBriefing } from "@/lib/data/papers";
 import { getCollections, getLibraryItem } from "@/lib/data/user";
 import { formatAuthors, formatExactDate, collectionHref } from "@/lib/format";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string[] }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string[] }> }) {
   const { id } = await params;
   try {
     const paper = await getPaper(arxivIdFromRoute(id));
@@ -62,11 +58,7 @@ async function RelatedPapers({ paper }: { paper: ArxivPaper }) {
   );
 }
 
-export default async function PaperPage({
-  params,
-}: {
-  params: Promise<{ id: string[] }>;
-}) {
+export default async function PaperPage({ params }: { params: Promise<{ id: string[] }> }) {
   const { userId } = await auth();
   const { id } = await params;
   const arxivId = arxivIdFromRoute(id);
@@ -108,9 +100,7 @@ export default async function PaperPage({
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <span className="font-mono tracking-wide text-primary">{paper.id}</span>
           <span className="text-muted-foreground">{formatExactDate(paper.published)}</span>
-          {paper.comment ? (
-            <span className="text-muted-foreground">{paper.comment}</span>
-          ) : null}
+          {paper.comment ? <span className="text-muted-foreground">{paper.comment}</span> : null}
         </div>
         <h1 className="font-heading max-w-4xl text-4xl leading-tight text-pretty sm:text-5xl">
           <Latex>{paper.title}</Latex>

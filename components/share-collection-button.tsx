@@ -91,8 +91,7 @@ export function ShareCollectionButton({
             </ControlButton>
           </div>
           <p className="text-xs text-muted-foreground">
-            Making it private stops this link from working. Sharing again later creates a new
-            link.
+            Making it private stops this link from working. Sharing again later creates a new link.
           </p>
         </div>
         <DialogFooter>
@@ -131,8 +130,8 @@ export function ShareCollectionButton({
           <DialogTitle>Make this collection public?</DialogTitle>
         </DialogHeader>
         <DialogDescription>
-          Anyone with the link can view “{name}”, even if they are not signed in. You’ll get a
-          short share URL. Renaming the collection later will not break it.
+          Anyone with the link can view “{name}”, even if they are not signed in. You’ll get a short
+          share URL. Renaming the collection later will not break it.
         </DialogDescription>
         <DialogFooter>
           <ControlButton type="button" variant="outline" onClick={() => setOpen(false)}>
@@ -172,7 +171,9 @@ export function ShareCollectionButton({
       }}
     >
       <DialogTrigger asChild>
-        <ControlButton variant="outline">{shareToken ? "Make Private" : "Make Public"}</ControlButton>
+        <ControlButton variant="outline">
+          {shareToken ? "Make Private" : "Make Public"}
+        </ControlButton>
       </DialogTrigger>
       <DialogContent showCloseButton={false} className="sm:max-w-md">
         {body}

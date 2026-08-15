@@ -16,11 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function CreateShelfForm({
-  action,
-}: {
-  action: (name: string) => Promise<void>;
-}) {
+export function CreateShelfForm({ action }: { action: (name: string) => Promise<void> }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState("");
@@ -79,9 +75,7 @@ export function CreateShelfForm({
               placeholder="New collection name"
               autoFocus
             />
-            <DialogDescription>
-              Name it after a question you keep coming back to.
-            </DialogDescription>
+            <DialogDescription>Name it after a question you keep coming back to.</DialogDescription>
           </div>
           <DialogFooter>
             <ControlButton type="button" variant="outline" onClick={() => setOpen(false)}>

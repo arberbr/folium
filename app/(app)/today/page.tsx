@@ -43,9 +43,7 @@ export default async function TodayPage({
       </header>
 
       {fetchError ? (
-        <p className="text-sm text-muted-foreground">
-          No preprints came back. Try again in a bit.
-        </p>
+        <p className="text-sm text-muted-foreground">No preprints came back. Try again in a bit.</p>
       ) : (
         <>
           <section className="grid gap-5 md:grid-cols-2">
@@ -56,14 +54,10 @@ export default async function TodayPage({
 
           <div className="flex items-center justify-between">
             <ControlButton variant="outline" size="lg" asChild disabled={start === 0}>
-              <Link href={start === 0 ? "/today" : `/today?start=${prevStart}`}>
-                Previous
-              </Link>
+              <Link href={start === 0 ? "/today" : `/today?start=${prevStart}`}>Previous</Link>
             </ControlButton>
             <ControlButton variant="outline" size="lg" asChild disabled={!hasNext}>
-              <Link href={hasNext ? `/today?start=${nextStart}` : "/today"}>
-                Next
-              </Link>
+              <Link href={hasNext ? `/today?start=${nextStart}` : "/today"}>Next</Link>
             </ControlButton>
           </div>
         </>

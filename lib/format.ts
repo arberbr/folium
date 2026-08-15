@@ -2,10 +2,7 @@ import { formatDistanceToNow } from "date-fns";
 import { normalizeArxivId } from "@/lib/arxiv/ids";
 
 export function paperHref(id: string) {
-  return `/paper/${normalizeArxivId(id)
-    .split("/")
-    .map(encodeURIComponent)
-    .join("/")}`;
+  return `/paper/${normalizeArxivId(id).split("/").map(encodeURIComponent).join("/")}`;
 }
 
 export function collectionHref(slug: string) {

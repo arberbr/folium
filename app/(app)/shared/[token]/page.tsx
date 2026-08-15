@@ -4,11 +4,7 @@ import { PaperCard } from "@/components/paper-card";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getPublicCollectionByShareToken } from "@/lib/data/user";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const collection = await getPublicCollectionByShareToken(decodeURIComponent(token));
   return { title: collection?.name ?? "Shared collection" };

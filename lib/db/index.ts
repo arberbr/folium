@@ -37,10 +37,7 @@ function createDb() {
   return drizzle(client, { schema });
 }
 
-if (
-  !globalForDb.appDb ||
-  globalForDb.appDbSchemaVersion !== SCHEMA_VERSION
-) {
+if (!globalForDb.appDb || globalForDb.appDbSchemaVersion !== SCHEMA_VERSION) {
   globalForDb.appDb = createDb();
   globalForDb.appDbReady = undefined;
   globalForDb.appDbSchemaVersion = SCHEMA_VERSION;

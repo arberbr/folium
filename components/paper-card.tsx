@@ -74,12 +74,8 @@ export function PaperCard({
       <CardContent className="pointer-events-none relative z-10 flex h-full flex-col gap-3 px-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="font-mono text-[11px] tracking-wide text-primary">
-              {paper.id}
-            </span>
-            {status ? (
-              <Chip className={statusChipClass(status)}>{statusLabel(status)}</Chip>
-            ) : null}
+            <span className="font-mono text-[11px] tracking-wide text-primary">{paper.id}</span>
+            {status ? <Chip className={statusChipClass(status)}>{statusLabel(status)}</Chip> : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <span className="text-[11px] text-muted-foreground">
@@ -104,9 +100,7 @@ export function PaperCard({
         >
           <Latex>{paper.title}</Latex>
         </h3>
-        <p className="text-sm text-muted-foreground">
-          {formatAuthors(paper.authors)}
-        </p>
+        <p className="text-sm text-muted-foreground">{formatAuthors(paper.authors)}</p>
         {!compact ? (
           <p className="line-clamp-3 text-sm leading-relaxed text-foreground/80">
             <Latex>{paper.summary}</Latex>

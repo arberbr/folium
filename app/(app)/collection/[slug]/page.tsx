@@ -15,22 +15,14 @@ async function requestOrigin() {
   return `${protocol}://${host}`;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { userId } = await auth.protect();
   const { slug } = await params;
   const collection = await getCollectionBySlug(userId, decodeURIComponent(slug));
   return { title: collection?.name ?? "Collection" };
 }
 
-export default async function CollectionPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { userId } = await auth.protect();
 
   const { slug } = await params;

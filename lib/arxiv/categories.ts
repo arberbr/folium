@@ -195,10 +195,7 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
   {
     id: "nucl",
     label: "Nuclear Physics",
-    categories: cats(
-      ["nucl-ex", "Nuclear Experiment"],
-      ["nucl-th", "Nuclear Theory"],
-    ),
+    categories: cats(["nucl-ex", "Nuclear Experiment"], ["nucl-th", "Nuclear Theory"]),
   },
   {
     id: "physics",

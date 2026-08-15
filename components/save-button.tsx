@@ -6,13 +6,7 @@ import { toast } from "sonner";
 import { ControlButton } from "@/components/control-button";
 import { removePaperAction, savePaperAction } from "@/lib/actions";
 
-export function SaveButton({
-  arxivId,
-  saved,
-}: {
-  arxivId: string;
-  saved: boolean;
-}) {
+export function SaveButton({ arxivId, saved }: { arxivId: string; saved: boolean }) {
   const [isSaved, setIsSaved] = useState(saved);
   const [pending, startTransition] = useTransition();
 

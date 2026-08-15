@@ -59,8 +59,7 @@ export async function POST_ANALYZE(req: Request) {
 export async function POST_CHAT(req: Request) {
   const userId = await requireUser();
 
-  const { messages, arxivId }: { messages: UIMessage[]; arxivId?: string } =
-    await req.json();
+  const { messages, arxivId }: { messages: UIMessage[]; arxivId?: string } = await req.json();
 
   if (!arxivId) {
     return Response.json({ error: "Missing arxivId" }, { status: 400 });

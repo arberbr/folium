@@ -24,7 +24,9 @@ export function heuristicBriefing(paper: ArxivPaper): PaperBriefing {
     ],
     methods: [
       "Method details are not extracted without an AI key — open the PDF or HTML version.",
-      paper.comment ? `Author comment: ${paper.comment}` : "No author comment was provided on arXiv.",
+      paper.comment
+        ? `Author comment: ${paper.comment}`
+        : "No author comment was provided on arXiv.",
     ],
     limitations: [
       "This is a heuristic briefing generated without a language model. Treat it as a sketch, not an analysis.",

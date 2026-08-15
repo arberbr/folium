@@ -49,8 +49,7 @@ function Chip({
   accent = false,
   asChild = false,
   ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof chipVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<"span"> & VariantProps<typeof chipVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "span";
 
   return (

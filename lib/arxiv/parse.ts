@@ -4,8 +4,7 @@ import type { ArxivAuthor, ArxivPaper, ArxivSearchResult } from "./types";
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "@_",
-  isArray: (name) =>
-    ["entry", "author", "category", "link"].includes(name),
+  isArray: (name) => ["entry", "author", "category", "link"].includes(name),
 });
 
 function asArray<T>(value: T | T[] | undefined): T[] {
@@ -56,13 +55,15 @@ function mapEntry(entry: Record<string, unknown>): ArxivPaper {
   const idRaw = cleanText(entry.id);
   const id = extractId(idRaw);
   const links = asArray(entry.link as Record<string, string>[] | undefined);
-  const pdfLink = links.find((link) => link["@_title"] === "pdf" || link["@_type"] === "application/pdf");
-  const authors = asArray(entry.author as { name?: string; "arxiv:affiliation"?: string }[] | undefined).map(
+  const pdfLink = links.find(
+    (link) => link["@_title"] === "pdf" || link["@_type"] === "application/pdf",
+  );
+  const authors = asArray(
+    entry.author as { name?: string; "arxiv:affiliation"?: string }[] | undefined,
+  ).map(
     (author): ArxivAuthor => ({
       name: cleanText(author.name),
-      affiliation: author["arxiv:affiliation"]
-        ? cleanText(author["arxiv:affiliation"])
-        : undefined,
+      affiliation: author["arxiv:affiliation"] ? cleanText(author["arxiv:affiliation"]) : undefined,
     }),
   );
 
@@ -86,9 +87,7 @@ function mapEntry(entry: Record<string, unknown>): ArxivPaper {
     published: cleanText(entry.published),
     updated: cleanText(entry.updated),
     comment: entry["arxiv:comment"] ? cleanText(entry["arxiv:comment"]) : undefined,
-    journalRef: entry["arxiv:journal_ref"]
-      ? cleanText(entry["arxiv:journal_ref"])
-      : undefined,
+    journalRef: entry["arxiv:journal_ref"] ? cleanText(entry["arxiv:journal_ref"]) : undefined,
     doi: entry["arxiv:doi"] ? cleanText(entry["arxiv:doi"]) : undefined,
     pdfUrl: pdfLink?.["@_href"] ?? `https://arxiv.org/pdf/${id}.pdf`,
     absUrl: `https://arxiv.org/abs/${id}`,
