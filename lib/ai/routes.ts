@@ -14,16 +14,13 @@ import { NO_MODEL_MESSAGE, resolveModel } from "@/lib/ai/models";
 import { briefingSchema } from "@/lib/ai/schema";
 import { getCachedPaper, saveBriefing } from "@/lib/data/papers";
 
-const UNAUTHORIZED = Response.json({ error: "Unauthorized" }, { status: 401 });
-
 async function requireUser() {
-  const { userId } = await auth();
+  const { userId } = await auth.protect();
   return userId;
 }
 
 export async function POST_ANALYZE(req: Request) {
   const userId = await requireUser();
-  if (!userId) return UNAUTHORIZED;
 
   const body = (await req.json()) as { arxivId?: string };
   if (!body.arxivId) {
@@ -61,7 +58,6 @@ export async function POST_ANALYZE(req: Request) {
 
 export async function POST_CHAT(req: Request) {
   const userId = await requireUser();
-  if (!userId) return UNAUTHORIZED;
 
   const { messages, arxivId }: { messages: UIMessage[]; arxivId?: string } =
     await req.json();

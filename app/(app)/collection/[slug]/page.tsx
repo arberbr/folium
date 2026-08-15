@@ -20,8 +20,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { userId } = await auth();
-  if (!userId) return { title: "Collection" };
+  const { userId } = await auth.protect();
   const { slug } = await params;
   const collection = await getCollectionBySlug(userId, decodeURIComponent(slug));
   return { title: collection?.name ?? "Collection" };
@@ -32,8 +31,7 @@ export default async function CollectionPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { userId } = await auth();
-  if (!userId) return null;
+  const { userId } = await auth.protect();
 
   const { slug } = await params;
   const collection = await getCollectionBySlug(userId, decodeURIComponent(slug));

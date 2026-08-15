@@ -4,8 +4,7 @@ import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getLibrary } from "@/lib/data/user";
 
 export default async function LibraryPage() {
-  const { userId } = await auth();
-  if (!userId) return null;
+  const { userId } = await auth.protect();
 
   const items = await getLibrary(userId);
   const papers = await papersByIdsWithFallback(items.map((item) => item.arxivId));

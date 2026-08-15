@@ -10,8 +10,7 @@ export const metadata = {
 };
 
 export default async function CollectionsPage() {
-  const { userId } = await auth();
-  if (!userId) return null;
+  const { userId } = await auth.protect();
 
   const shelves = await getCollections(userId);
 

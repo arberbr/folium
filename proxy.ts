@@ -1,23 +1,12 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// Landing, Explore, Docs, paper pages, and shared collections are public.
-// Note this deliberately does not cover /api/* — the AI routes stay behind
-// auth.protect() so an anonymous visitor cannot spend another reader's OpenRouter credits.
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/shared(.*)",
-  "/paper(.*)",
-  "/explore(.*)",
-  "/docs(.*)",
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect();
-  }
-});
+// Session handshake only. Auth checks live on the pages, Server Functions,
+// and API routes that need them — middleware path matching can diverge from
+// how Next.js routes requests. Public: /, /sign-in, /sign-up, /shared,
+// /paper, /explore, /docs. Signed-in pages and /api/papers/* call
+// auth.protect() so an anonymous visitor cannot spend another reader's
+// OpenRouter credits.
+export default clerkMiddleware();
 
 export const config = {
   matcher: [

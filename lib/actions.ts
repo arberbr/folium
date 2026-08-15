@@ -25,8 +25,7 @@ import type { ReadingStatus } from "@/lib/db/schema";
 import { collectionHref, shareHref } from "@/lib/format";
 
 async function requireUserId() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  const { userId } = await auth.protect();
   return userId;
 }
 
