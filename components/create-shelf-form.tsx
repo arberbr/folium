@@ -15,8 +15,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useServerAction } from "@/hooks/use-server-action";
+import type { ActionResult } from "@/lib/errors";
 
-export function CreateShelfForm({ action }: { action: (name: string) => Promise<void> }) {
+export function CreateShelfForm({
+  action,
+}: {
+  action: (name: string) => Promise<ActionResult<void>>;
+}) {
   const [open, setOpen] = useState(false);
   const { pending, run } = useServerAction();
   const [name, setName] = useState("");

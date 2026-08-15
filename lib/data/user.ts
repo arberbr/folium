@@ -1,8 +1,9 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { customAlphabet, nanoid } from "nanoid";
+import { DEFAULT_INTERESTS } from "@/lib/arxiv/categories";
 import { db } from "@/lib/db";
 import { collectionPapers, collections, libraryItems, profiles, type ReadingStatus } from "@/lib/db/schema";
-import { DEFAULT_INTERESTS } from "@/lib/arxiv/categories";
+import { ActionError } from "@/lib/errors";
 import { uniqueSlug } from "@/lib/format";
 
 const createShareToken = customAlphabet("23456789abcdefghjkmnpqrstuvwxyz", 12);
@@ -141,7 +142,7 @@ async function requireOwnedCollection(userId: string, collectionId: string) {
   const collection = await db.query.collections.findFirst({
     where: and(eq(collections.id, collectionId), eq(collections.userId, userId)),
   });
-  if (!collection) throw new Error("Collection not found");
+  if (!collection) throw new ActionError("Collection not found");
   return collection;
 }
 
@@ -198,7 +199,7 @@ async function uniqueShareToken() {
       .limit(1);
     if (!existing) return token;
   }
-  throw new Error("Could not generate a share link");
+  throw new ActionError("Could not generate a share link");
 }
 
 export async function getPublicCollectionByShareToken(token: string) {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ActionError } from "./errors";
 import {
   analyzeBodySchema,
   arxivIdSchema,
@@ -17,6 +18,7 @@ describe("arxivIdSchema", () => {
   });
 
   it("rejects a title", () => {
+    expect(() => parseWith(arxivIdSchema, "not an id")).toThrow(ActionError);
     expect(() => parseWith(arxivIdSchema, "not an id")).toThrow(/valid arXiv id/);
   });
 });

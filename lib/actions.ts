@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import {
   clearOpenRouterKey,
   DISCONNECTED,
@@ -21,7 +20,14 @@ import {
   updateInterests,
   upsertLibraryItem,
 } from "@/lib/data/user";
-import { collectionHref, shareHref } from "@/lib/format";
+import { ActionError, asAction } from "@/lib/errors";
+import {
+  revalidateCollection,
+  revalidateInterests,
+  revalidateLibraryPaper,
+  revalidatePaper,
+  revalidatePaperPages,
+} from "@/lib/revalidate";
 import {
   arxivIdSchema,
   collectionIdSchema,
@@ -33,12 +39,13 @@ import {
 } from "@/lib/validations";
 
 export async function savePaperAction(arxivId: string, status = "queued") {
-  const userId = await requireUserId();
-  const id = parseWith(arxivIdSchema, arxivId);
-  const nextStatus = parseWith(readingStatusSchema, status);
-  await upsertLibraryItem({ userId, arxivId: id, status: nextStatus });
-  revalidatePath("/library");
-  revalidatePath(`/paper/${encodeURIComponent(id)}`);
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const id = parseWith(arxivIdSchema, arxivId);
+    const nextStatus = parseWith(readingStatusSchema, status);
+    await upsertLibraryItem({ userId, arxivId: id, status: nextStatus });
+    revalidateLibraryPaper(id);
+  });
 }
 
 export async function updatePaperStatusAction(arxivId: string, status: string) {
@@ -46,88 +53,92 @@ export async function updatePaperStatusAction(arxivId: string, status: string) {
 }
 
 export async function removePaperAction(arxivId: string) {
-  const userId = await requireUserId();
-  const id = parseWith(arxivIdSchema, arxivId);
-  await removeLibraryItem(userId, id);
-  revalidatePath("/library");
-  revalidatePath(`/paper/${encodeURIComponent(id)}`);
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const id = parseWith(arxivIdSchema, arxivId);
+    await removeLibraryItem(userId, id);
+    revalidateLibraryPaper(id);
+  });
 }
 
 export async function createShelfAction(name: string) {
-  const userId = await requireUserId();
-  const collection = await createCollection(userId, parseWith(collectionNameSchema, name));
-  revalidatePath("/collections");
-  revalidatePath(collectionHref(collection.slug));
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const collection = await createCollection(userId, parseWith(collectionNameSchema, name));
+    revalidateCollection(collection);
+  });
 }
 
 export async function addToShelfAction(collectionId: string, arxivId: string) {
-  const userId = await requireUserId();
-  const id = parseWith(arxivIdSchema, arxivId);
-  const shelfId = parseWith(collectionIdSchema, collectionId);
-  const collection = await addToCollection(userId, shelfId, id);
-  revalidatePath("/collections");
-  revalidatePath(`/paper/${encodeURIComponent(id)}`);
-  revalidatePath(collectionHref(collection.slug));
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const id = parseWith(arxivIdSchema, arxivId);
+    const shelfId = parseWith(collectionIdSchema, collectionId);
+    const collection = await addToCollection(userId, shelfId, id);
+    revalidatePaper(id);
+    revalidateCollection(collection);
+  });
 }
 
 export async function removeFromShelfAction(collectionId: string, arxivId: string) {
-  const userId = await requireUserId();
-  const id = parseWith(arxivIdSchema, arxivId);
-  const shelfId = parseWith(collectionIdSchema, collectionId);
-  const collection = await removeFromCollection(userId, shelfId, id);
-  revalidatePath("/collections");
-  revalidatePath(`/paper/${encodeURIComponent(id)}`);
-  revalidatePath(collectionHref(collection.slug));
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const id = parseWith(arxivIdSchema, arxivId);
+    const shelfId = parseWith(collectionIdSchema, collectionId);
+    const collection = await removeFromCollection(userId, shelfId, id);
+    revalidatePaper(id);
+    revalidateCollection(collection);
+  });
 }
 
 export async function publishCollectionAction(collectionId: string) {
-  const userId = await requireUserId();
-  const collection = await publishCollection(userId, parseWith(collectionIdSchema, collectionId));
-  if (!collection.shareToken) throw new Error("Could not publish this collection");
-  revalidatePath("/collections");
-  revalidatePath(collectionHref(collection.slug));
-  revalidatePath(shareHref(collection.shareToken));
-  return { token: collection.shareToken };
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const collection = await publishCollection(userId, parseWith(collectionIdSchema, collectionId));
+    if (!collection.shareToken) throw new ActionError("Could not publish this collection");
+    revalidateCollection(collection);
+    return { token: collection.shareToken };
+  });
 }
 
 export async function unpublishCollectionAction(collectionId: string) {
-  const userId = await requireUserId();
-  const collection = await unpublishCollection(userId, parseWith(collectionIdSchema, collectionId));
-  revalidatePath("/collections");
-  revalidatePath(collectionHref(collection.slug));
-  if (collection.previousShareToken) {
-    revalidatePath(shareHref(collection.previousShareToken));
-  }
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const collection = await unpublishCollection(
+      userId,
+      parseWith(collectionIdSchema, collectionId),
+    );
+    revalidateCollection(collection);
+  });
 }
 
 export async function renameCollectionAction(collectionId: string, name: string) {
-  const userId = await requireUserId();
-  const collection = await renameCollection(
-    userId,
-    parseWith(collectionIdSchema, collectionId),
-    parseWith(collectionNameSchema, name),
-  );
-  revalidatePath("/collections");
-  revalidatePath(collectionHref(collection.previousSlug));
-  revalidatePath(collectionHref(collection.slug));
-  return { slug: collection.slug };
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const collection = await renameCollection(
+      userId,
+      parseWith(collectionIdSchema, collectionId),
+      parseWith(collectionNameSchema, name),
+    );
+    revalidateCollection(collection);
+    return { slug: collection.slug };
+  });
 }
 
 export async function deleteCollectionAction(collectionId: string) {
-  const userId = await requireUserId();
-  const collection = await deleteCollection(userId, parseWith(collectionIdSchema, collectionId));
-  revalidatePath("/collections");
-  revalidatePath(collectionHref(collection.slug));
-  if (collection.shareToken) {
-    revalidatePath(shareHref(collection.shareToken));
-  }
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const collection = await deleteCollection(userId, parseWith(collectionIdSchema, collectionId));
+    revalidateCollection(collection);
+  });
 }
 
 export async function saveInterestsAction(interests: string[]) {
-  const userId = await requireUserId();
-  await updateInterests(userId, parseWith(interestsSchema, interests));
-  revalidatePath("/today");
-  revalidatePath("/settings");
+  return asAction(async () => {
+    const userId = await requireUserId();
+    await updateInterests(userId, parseWith(interestsSchema, interests));
+    revalidateInterests();
+  });
 }
 
 export async function getOpenRouterConnectionAction(): Promise<OpenRouterConnection> {
@@ -142,13 +153,15 @@ export async function saveOpenRouterKeyAction(key: string) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid key" };
   }
   const result = await saveOpenRouterKey(userId, parsed.data);
-  if (result.ok) revalidatePath("/paper/[id]", "page");
+  if (result.ok) revalidatePaperPages();
   return result;
 }
 
 export async function disconnectOpenRouterAction() {
-  const userId = await requireUserId();
-  await clearOpenRouterKey(userId);
-  revalidatePath("/paper/[id]", "page");
-  return DISCONNECTED;
+  return asAction(async () => {
+    const userId = await requireUserId();
+    await clearOpenRouterKey(userId);
+    revalidatePaperPages();
+    return DISCONNECTED;
+  });
 }

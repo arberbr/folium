@@ -2,6 +2,7 @@ import { z } from "zod";
 import { CATEGORY_LABEL } from "@/lib/arxiv/categories";
 import { isArxivId, normalizeArxivId } from "@/lib/arxiv/ids";
 import { readingStatuses } from "@/lib/db/schema";
+import { ActionError } from "@/lib/errors";
 
 export const CHAT_MAX_MESSAGES = 20;
 export const CHAT_MAX_BODY_CHARS = 50_000;
@@ -68,7 +69,7 @@ export function parseWith<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);
   if (!result.success) {
     const issue = result.error.issues[0];
-    throw new Error(issue?.message ?? "Invalid input");
+    throw new ActionError(issue?.message ?? "Invalid input");
   }
   return result.data;
 }
