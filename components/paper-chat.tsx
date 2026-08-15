@@ -51,7 +51,7 @@ export function PaperChat({
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
           {messages.length === 0 ? (
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Questions are grounded in the title and abstract. If the PDF is required, Folium will say so.
+              Questions are grounded in the title and abstract. If the PDF is required, arXivDesk will say so.
             </p>
           ) : null}
           {messages.map((message) => (

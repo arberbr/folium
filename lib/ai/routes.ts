@@ -44,7 +44,7 @@ export async function POST_ANALYZE(req: Request) {
     model: briefingModel.model,
     output: Output.object({ schema: briefingSchema }),
     system:
-      "You are Folium, a severe but generous research editor. Ground every claim in the abstract. Never invent citations, results, or datasets. Prefer concrete verbs over hype.",
+      "You are arXivDesk, a severe but generous research editor. Ground every claim in the abstract. Never invent citations, results, or datasets. Prefer concrete verbs over hype.",
     prompt: `Write a briefing for this arXiv paper.\n\n${paperContext(paper)}`,
   });
 
@@ -82,7 +82,7 @@ export async function POST_CHAT(req: Request) {
 
   const result = streamText({
     model: chatModel.model,
-    system: `You are Folium, an evidence-bound reading partner. Answer only from this paper's title, authors, categories, and abstract. If the abstract does not contain the answer, say so and suggest what the PDF would need to show. Quote short phrases when helpful.
+    system: `You are arXivDesk, an evidence-bound reading partner. Answer only from this paper's title, authors, categories, and abstract. If the abstract does not contain the answer, say so and suggest what the PDF would need to show. Quote short phrases when helpful.
 
 ${paperContext(paper)}`,
     messages: await convertToModelMessages(messages),

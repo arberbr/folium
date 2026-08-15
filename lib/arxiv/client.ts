@@ -5,7 +5,7 @@ import type { ArxivPaper, ArxivSearchParams, ArxivSearchResult } from "./types";
 const ARXIV_API = "https://export.arxiv.org/api/query";
 const USER_AGENT =
   process.env.ARXIV_USER_AGENT ??
-  "Folium/1.0 (https://github.com; arXiv research reading room)";
+  "arXivDesk/1.0 (https://github.com; arXiv research reading desk)";
 
 function buildSearchQuery(params: ArxivSearchParams) {
   const clauses: string[] = [];

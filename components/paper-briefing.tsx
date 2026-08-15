@@ -98,7 +98,7 @@ export function PaperBriefingPanel({
         ) : !canStream && !briefing ? (
           <p className="text-sm leading-relaxed text-muted-foreground">
             Connect your OpenRouter key under Integrations in your account menu to stream a
-            live briefing. Until then, Folium keeps a heuristic sketch from the abstract.
+            live briefing. Until then, arXivDesk keeps a heuristic sketch from the abstract.
           </p>
         ) : null}
 

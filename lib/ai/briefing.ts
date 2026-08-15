@@ -29,7 +29,7 @@ export function heuristicBriefing(paper: ArxivPaper): PaperBriefing {
     limitations: [
       "This is a heuristic briefing generated without a language model. Treat it as a sketch, not an analysis.",
     ],
-    whyItMatters: `Newly listed under ${paper.primaryCategory}. Connect your OpenRouter key to unlock a full Folium briefing.`,
+    whyItMatters: `Newly listed under ${paper.primaryCategory}. Connect your OpenRouter key to unlock a full arXivDesk briefing.`,
     relatedQuestions: [
       "What is the strongest empirical result, and on which baseline?",
       "Which assumption would most change the conclusion if it failed?",

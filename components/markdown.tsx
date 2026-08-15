@@ -4,7 +4,7 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 /**
- * Renders model output as markdown, styled to the same vocabulary the rest of Folium
+ * Renders model output as markdown, styled to the same vocabulary the rest of arXivDesk
  * uses — primary-tinted rules on list items, uppercase tracked section labels, Fraunces
  * for anything display-sized. Raw HTML in the source is ignored rather than rendered,
  * which is react-markdown's default and the reason no sanitizer is wired up here.

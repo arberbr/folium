@@ -34,8 +34,8 @@ function SampleCard({
       <div className="mt-6 space-y-2 text-sm">
         <p className="text-xs tracking-[0.2em] text-primary uppercase">Briefing</p>
         <p className="leading-relaxed">
-          Folium will extract the claim, the method, the limitation, and the
-          person who should actually read this — before you open the PDF.
+          arXivDesk will extract the claim, the method, the limitation, and the person who should
+          actually read this — before you open the PDF.
         </p>
       </div>
     </article>
@@ -71,24 +71,23 @@ export default async function LandingPage() {
       <main className="relative flex-1 overflow-hidden">
         <section className="flex flex-col items-center py-20 text-center lg:py-28">
           <h1 className="font-heading reveal reveal-delay-1 mt-5 max-w-3xl text-5xl leading-[1.05] text-pretty sm:text-7xl">
-            Read less.<br />Learn more.
+            Read less.
+            <br />
+            Learn more.
           </h1>
           <p className="reveal reveal-delay-2 mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Folium is a reading room for arXiv: a daily drop from the fields you
-            actually work in, structured briefings instead of another abstract
-            dump.
+            arXivDesk is your desk for arXiv: a daily drop from the fields you actually work in,
+            structured briefings instead of another abstract dump.
           </p>
           <div className="reveal reveal-delay-3 mt-8 flex justify-center">
             <Show when="signed-out">
               <ControlButton asChild size="lg">
-                <Link href="/sign-up">Open the reading room</Link>
+                <Link href="/sign-up">Open the desk</Link>
               </ControlButton>
             </Show>
             <Show when="signed-in">
               <ControlButton asChild size="lg">
-                <Link href="/today">
-                  Continue to Today
-                </Link>
+                <Link href="/today">Continue to Today</Link>
               </ControlButton>
             </Show>
           </div>

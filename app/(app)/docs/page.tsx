@@ -5,7 +5,7 @@ import { ControlButton } from "@/components/control-button";
 export const metadata = {
   title: "Docs",
   description:
-    "How Folium turns arXiv into a reading room: Explore, Today, briefings, and collections.",
+    "How arXivDesk turns arXiv into a reading desk: Explore, Today, briefings, and collections.",
 };
 
 const TOC = [
@@ -39,10 +39,10 @@ export default function DocsPage() {
       <article className="max-w-3xl space-y-16">
         <header className="space-y-4">
           <p className="text-xs tracking-[0.22em] text-primary uppercase">Field notes</p>
-          <h1 className="font-heading text-4xl leading-tight sm:text-5xl">How Folium works</h1>
+          <h1 className="font-heading text-4xl leading-tight sm:text-5xl">How arXivDesk works</h1>
           <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            arXiv publishes a flood. Folium is the desk: a daily drop from the fields you follow, a
-            search that does not require an account, and a briefing that tells you whether the PDF
+            arXiv publishes a flood. arXivDesk is the desk: a daily drop from the fields you follow,
+            a search that does not require an account, and a briefing that tells you whether the PDF
             is worth the hour.
           </p>
         </header>
@@ -55,7 +55,7 @@ export default function DocsPage() {
           </p>
           <FolioShot
             src="/folio/landing.png"
-            alt="Folium landing page with the line Read less. Learn more. and a sample paper card."
+            alt="arXivDesk landing page with the line Read less. Learn more. and a sample paper card."
             caption="The landing card is a live preprint from cs.LG — a different one on each visit, so the room never feels frozen."
             priority
           />
@@ -81,8 +81,8 @@ export default function DocsPage() {
         <section id="search" className="scroll-mt-24 space-y-5">
           <SectionHeading n="03" title="Search by claim" />
           <p className="leading-relaxed text-pretty">
-            Type a title fragment, an author, a method, or a raw arXiv id. Folium ranks by relevance
-            when you search, and by submission date when you are just walking a category.
+            Type a title fragment, an author, a method, or a raw arXiv id. arXivDesk ranks by
+            relevance when you search, and by submission date when you are just walking a category.
           </p>
           <FolioShot
             src="/folio/explore-search.png"
@@ -102,7 +102,7 @@ export default function DocsPage() {
           <FolioShot
             src="/folio/paper.png"
             alt="Paper page for Attention Is All You Need, showing abstract, briefing panel, and ask-the-abstract chat."
-            caption="Without a key, the briefing is a sketch from the abstract. With one, Folium extracts claims, methods, limitations, novelty, and who should actually read it."
+            caption="Without a key, the briefing is a sketch from the abstract. With one, arXivDesk extracts claims, methods, limitations, novelty, and who should actually read it."
           />
         </section>
 
@@ -145,7 +145,7 @@ export default function DocsPage() {
         <section id="key" className="scroll-mt-24 space-y-5">
           <SectionHeading n="06" title="Bring your own key" />
           <p className="leading-relaxed text-pretty">
-            Folium does not hold a model-provider key. Open your avatar → Integrations, paste an{" "}
+            arXivDesk does not hold a model-provider key. Open your avatar → Integrations, paste an{" "}
             <a
               href="https://openrouter.ai/keys"
               className="text-primary underline-offset-4 hover:underline"
@@ -166,7 +166,7 @@ export default function DocsPage() {
               </li>
               <li>
                 <span className="font-medium">Ask the abstract</span> — a chat grounded in the paper
-                you have open. If the PDF is required, Folium will say so.
+                you have open. If the PDF is required, arXivDesk will say so.
               </li>
               <li>
                 <span className="font-medium">Heuristic fallback</span> — without a key you still

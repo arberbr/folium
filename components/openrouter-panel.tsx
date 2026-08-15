@@ -72,7 +72,7 @@ export function OpenRouterPanel() {
       <header className="space-y-1">
         <h1 className="font-heading text-xl">Integrations</h1>
         <p className="text-sm text-muted-foreground">
-          Folium runs every briefing and paper chat on your own model provider. Without a
+          arXivDesk runs every briefing and paper chat on your own model provider. Without a
           key connected, papers still open — you just get a heuristic sketch of the abstract
           instead of a live briefing.
         </p>

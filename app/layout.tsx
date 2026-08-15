@@ -24,11 +24,11 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Folium — a private reading room for arXiv",
-    template: "%s · Folium",
+    default: "arXivDesk — a private desk for arXiv",
+    template: "%s · arXivDesk",
   },
   description:
-    "Cut through the preprint stack. Folium turns arXiv into a personal observatory: briefings, collections, and conversations grounded in the abstract.",
+    "Cut through the preprint stack. arXivDesk turns arXiv into a personal observatory: briefings, collections, and conversations grounded in the abstract.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -3,7 +3,7 @@ import type { LanguageModel } from "ai";
 import { readOpenRouterKey } from "@/lib/ai/openrouter";
 
 /**
- * Folium is bring-your-own-key: every live briefing and chat runs on the reader's own
+ * arXivDesk is bring-your-own-key: every live briefing and chat runs on the reader's own
  * OpenRouter key, so there is no shared provider credential and no AI cost to the host.
  * Readers without a key still get the heuristic sketch built from the abstract.
  */
@@ -37,7 +37,7 @@ export async function resolveModel(
   const openrouter = createOpenRouter({
     apiKey: key,
     compatibility: "strict",
-    appName: "Folium",
+    appName: "arXivDesk",
   });
   const id = MODELS[role];
   return { model: openrouter.chat(id), id };

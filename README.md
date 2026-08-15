@@ -1,6 +1,6 @@
-# Folium
+# arXivDesk
 
-A private reading room for [arXiv](https://arxiv.org). Folium turns the daily preprint flood into a desk you can actually work at: a personalized drop, structured briefings, collections, and notes — all in one Next.js app.
+A private desk for [arXiv](https://arxiv.org). arXivDesk turns the daily preprint flood into a workspace you can actually work at: a personalized drop, structured briefings, collections, and notes — all in one Next.js app.
 
 ## What it does
 
@@ -28,7 +28,7 @@ pnpm install
 cp .env.example .env.local
 ```
 
-The only thing to fill in is **Clerk** — create an application at [dashboard.clerk.com](https://dashboard.clerk.com), add `http://localhost:3000` to allowed origins, and paste the publishable and secret keys. There is no model provider key to configure, because Folium never holds one.
+The only thing to fill in is **Clerk** — create an application at [dashboard.clerk.com](https://dashboard.clerk.com), add `http://localhost:3000` to allowed origins, and paste the publishable and secret keys. There is no model provider key to configure, because arXivDesk never holds one.
 
 Then:
 

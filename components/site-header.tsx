@@ -22,10 +22,10 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 w-full bg-background">
       <div className={cn(SHELL_CONTAINER, "flex h-16 items-center justify-between gap-4")}>
         <Link href="/" className="group flex shrink-0 items-center gap-3">
-          <span className="flex size-8 items-center justify-center rounded-sm bg-primary text-[0.7rem] font-semibold tracking-[0.18em] text-primary-foreground">
-            F
+          <span className="flex size-8 items-center justify-center rounded-sm bg-primary text-[0.62rem] font-semibold tracking-wide text-primary-foreground">
+            aD
           </span>
-          <span className="font-heading text-xl tracking-tight">Folium</span>
+          <span className="font-heading text-xl tracking-tight">arXivDesk</span>
         </Link>
 
         <NavLinks />
