@@ -26,6 +26,8 @@ export type ArxivSearchParams = {
   category?: string;
   categories?: string[];
   author?: string;
+  /** Look up specific papers. Uses arXiv `id_list`, required for pre-2007 ids. */
+  idList?: string[];
   start?: number;
   maxResults?: number;
   sortBy?: "submittedDate" | "lastUpdatedDate" | "relevance";

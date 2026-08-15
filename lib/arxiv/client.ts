@@ -1,4 +1,5 @@
 import { toPlainText } from "./latex";
+import { isArxivId, normalizeArxivId } from "./ids";
 import { parseArxivFeed } from "./parse";
 import type { ArxivPaper, ArxivSearchParams, ArxivSearchResult } from "./types";
 
@@ -24,7 +25,7 @@ function buildSearchQuery(params: ArxivSearchParams) {
     const q = params.query.trim();
     if (q.startsWith("id:")) {
       clauses.push(`id:${q.slice(3).trim()}`);
-    } else if (/^\d{4}\.\d{4,5}(v\d+)?$/.test(q) || q.includes("/")) {
+    } else if (/^\d{4}\.\d{4,5}(v\d+)?$/.test(q)) {
       clauses.push(`id:${q}`);
     } else {
       clauses.push(`all:${q}`);
@@ -35,12 +36,26 @@ function buildSearchQuery(params: ArxivSearchParams) {
   return clauses.length ? clauses.join(" AND ") : "cat:cs.*";
 }
 
+function resolveIdList(params: ArxivSearchParams) {
+  if (params.idList?.length) {
+    return params.idList.map(normalizeArxivId).filter(Boolean).join(",");
+  }
+  if (params.query && isArxivId(params.query)) {
+    return normalizeArxivId(params.query);
+  }
+  return undefined;
+}
+
 export async function searchArxiv(
   params: ArxivSearchParams = {},
 ): Promise<ArxivSearchResult> {
-  const searchQuery = buildSearchQuery(params);
   const url = new URL(ARXIV_API);
-  url.searchParams.set("search_query", searchQuery);
+  const idList = resolveIdList(params);
+  if (idList) {
+    url.searchParams.set("id_list", idList);
+  } else {
+    url.searchParams.set("search_query", buildSearchQuery(params));
+  }
   url.searchParams.set("start", String(params.start ?? 0));
   url.searchParams.set("max_results", String(params.maxResults ?? 20));
   url.searchParams.set("sortBy", params.sortBy ?? "submittedDate");
@@ -65,21 +80,19 @@ export async function searchArxiv(
 
 export async function getPaper(id: string): Promise<ArxivPaper | null> {
   const result = await searchArxiv({
-    query: `id:${id}`,
+    idList: [id],
     maxResults: 1,
-    sortBy: "relevance",
   });
   return result.papers[0] ?? null;
 }
 
 export async function getPapersByIds(ids: string[]): Promise<ArxivPaper[]> {
-  const unique = [...new Set(ids.filter(Boolean))];
+  const unique = [...new Set(ids.filter(Boolean).map(normalizeArxivId))];
   if (!unique.length) return [];
 
   const result = await searchArxiv({
-    query: unique.map((id) => `id:${id}`).join(" OR "),
+    idList: unique,
     maxResults: unique.length,
-    sortBy: "relevance",
   });
 
   const byId = new Map(result.papers.map((paper) => [paper.id, paper]));

@@ -16,6 +16,7 @@ import { heuristicBriefing } from "@/lib/ai/briefing";
 import { hasAiAccess } from "@/lib/ai/models";
 import { getPaper, relatedPapers } from "@/lib/arxiv/client";
 import { categoryLabel } from "@/lib/arxiv/categories";
+import { arxivIdFromRoute } from "@/lib/arxiv/ids";
 import { Latex } from "@/components/latex";
 import { toPlainText } from "@/lib/arxiv/latex";
 import type { ArxivPaper } from "@/lib/arxiv/types";
@@ -26,11 +27,11 @@ import { formatAuthors, formatExactDate, collectionHref } from "@/lib/format";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string[] }>;
 }) {
   const { id } = await params;
   try {
-    const paper = await getPaper(decodeURIComponent(id));
+    const paper = await getPaper(arxivIdFromRoute(id));
     // Document titles are plain text — LaTeX has to be flattened, not rendered.
     return { title: paper ? toPlainText(paper.title) : "Paper" };
   } catch {
@@ -64,11 +65,11 @@ async function RelatedPapers({ paper }: { paper: ArxivPaper }) {
 export default async function PaperPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string[] }>;
 }) {
   const { userId } = await auth();
   const { id } = await params;
-  const arxivId = decodeURIComponent(id);
+  const arxivId = arxivIdFromRoute(id);
 
   let paper: ArxivPaper | null = null;
   try {
