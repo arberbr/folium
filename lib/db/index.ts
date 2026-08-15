@@ -5,20 +5,20 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
 
-const DEFAULT_URL = "file:./data/folium.db";
+const DEFAULT_URL = "file:./data/local.db";
 
 type Db = ReturnType<typeof createDb>;
 
 const globalForDb = globalThis as unknown as {
-  foliumDb?: Db;
-  foliumReady?: Promise<void>;
-  foliumSchemaVersion?: number;
+  appDb?: Db;
+  appDbReady?: Promise<void>;
+  appDbSchemaVersion?: number;
 };
 
 const SCHEMA_VERSION = 3;
 
 function resolveUrl() {
-  return process.env.TURSO_DATABASE_URL ?? DEFAULT_URL;
+  return process.env.TURSO_DATABASE_URL || DEFAULT_URL;
 }
 
 function ensureLocalFile(url: string) {
@@ -38,15 +38,15 @@ function createDb() {
 }
 
 if (
-  !globalForDb.foliumDb ||
-  globalForDb.foliumSchemaVersion !== SCHEMA_VERSION
+  !globalForDb.appDb ||
+  globalForDb.appDbSchemaVersion !== SCHEMA_VERSION
 ) {
-  globalForDb.foliumDb = createDb();
-  globalForDb.foliumReady = undefined;
-  globalForDb.foliumSchemaVersion = SCHEMA_VERSION;
+  globalForDb.appDb = createDb();
+  globalForDb.appDbReady = undefined;
+  globalForDb.appDbSchemaVersion = SCHEMA_VERSION;
 }
 
-export const db = globalForDb.foliumDb ?? createDb();
+export const db = globalForDb.appDb ?? createDb();
 
 // Everything that can be declared up front, in one round trip. The legacy
 // ALTERs below have to land between the two batches: on databases created
@@ -105,11 +105,11 @@ const SCHEMA_TAIL = `
 `;
 
 export async function ensureSchema() {
-  if (globalForDb.foliumSchemaVersion !== SCHEMA_VERSION) {
-    globalForDb.foliumReady = undefined;
-    globalForDb.foliumSchemaVersion = SCHEMA_VERSION;
+  if (globalForDb.appDbSchemaVersion !== SCHEMA_VERSION) {
+    globalForDb.appDbReady = undefined;
+    globalForDb.appDbSchemaVersion = SCHEMA_VERSION;
   }
-  if (!globalForDb.foliumReady) {
+  if (!globalForDb.appDbReady) {
     const pending = (async () => {
       const client = db.$client;
       await client.executeMultiple(SCHEMA_HEAD);
@@ -128,11 +128,11 @@ export async function ensureSchema() {
 
     // Don't cache a rejection — a transient DB blip would otherwise poison
     // every later request served by this instance.
-    globalForDb.foliumReady = pending.catch((error) => {
-      globalForDb.foliumReady = undefined;
+    globalForDb.appDbReady = pending.catch((error) => {
+      globalForDb.appDbReady = undefined;
       throw error;
     });
   }
 
-  await globalForDb.foliumReady;
+  await globalForDb.appDbReady;
 }
