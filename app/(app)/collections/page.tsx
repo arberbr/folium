@@ -4,7 +4,7 @@ import { CreateShelfForm } from "@/components/create-shelf-form";
 import { PageHeader } from "@/components/page-header";
 import { createShelfAction } from "@/lib/actions";
 import { getCollections } from "@/lib/data/user";
-import { collectionHref } from "@/lib/format";
+import { collectionHref, pluralize } from "@/lib/format";
 
 export const metadata = {
   title: "Collections",
@@ -18,9 +18,7 @@ export default async function CollectionsPage() {
   return (
     <div className="space-y-8">
       <PageHeader title="Collections">
-        <p className="text-muted-foreground">
-          {shelves.length} collection{shelves.length === 1 ? "" : "s"}
-        </p>
+        <p className="text-muted-foreground">{pluralize(shelves.length, "collection")}</p>
       </PageHeader>
 
       <section className="grid gap-3 md:grid-cols-3">
@@ -30,7 +28,7 @@ export default async function CollectionsPage() {
             <article className="h-full rounded-2xl border border-border/80 bg-card/50 p-5 transition-transform duration-300 hover:-translate-y-0.5 hover:ring-primary/40">
               <h2 className="font-heading text-xl">{shelf.name}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {shelf.paperIds.length} paper{shelf.paperIds.length === 1 ? "" : "s"}
+                {pluralize(shelf.paperIds.length, "paper")}
               </p>
             </article>
           </Link>

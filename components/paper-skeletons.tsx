@@ -1,3 +1,4 @@
+import { PaperGrid } from "@/components/paper-grid";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -38,11 +39,11 @@ export function PaperGridSkeleton({
   compact?: boolean;
 }) {
   return (
-    <section className="grid gap-5 md:grid-cols-2">
+    <PaperGrid>
       {Array.from({ length: count }, (_, index) => (
         <PaperCardSkeleton key={index} compact={compact} />
       ))}
-    </section>
+    </PaperGrid>
   );
 }
 

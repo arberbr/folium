@@ -29,22 +29,10 @@ const chipVariants = cva(
         md: "rounded-md px-2.5 py-1 text-xs leading-4",
         lg: "rounded-full px-3.5 py-1.5 text-sm leading-5",
       },
-      accent: {
-        true: "border-primary/45 bg-primary/14",
-        false: "",
-      },
     },
-    compoundVariants: [
-      {
-        variant: "selected",
-        accent: true,
-        class: "border-primary bg-primary",
-      },
-    ],
     defaultVariants: {
       variant: "default",
       size: "sm",
-      accent: false,
     },
   },
 );
@@ -53,7 +41,6 @@ function Chip({
   className,
   variant = "default",
   size = "sm",
-  accent = false,
   asChild = false,
   ...props
 }: React.ComponentProps<"span"> & VariantProps<typeof chipVariants> & { asChild?: boolean }) {
@@ -63,7 +50,7 @@ function Chip({
     <Comp
       data-slot="chip"
       data-variant={variant}
-      className={cn(chipVariants({ variant, size, accent }), className)}
+      className={cn(chipVariants({ variant, size }), className)}
       {...props}
     />
   );

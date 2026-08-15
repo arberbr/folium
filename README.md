@@ -37,4 +37,6 @@ pnpm db:migrate
 pnpm dev
 ```
 
-Migrations live in `drizzle/` and also run once on server boot (`instrumentation.ts`), so a fresh local file at `./data/local.db` is created automatically. Use `pnpm db:migrate` when pointing `TURSO_DATABASE_URL` at a remote Turso database.
+Migrations live in `drizzle/`. A **local** database migrates once on server boot (`instrumentation.ts`), so a fresh file at `./data/local.db` is created automatically and `pnpm dev` needs no setup.
+
+A **remote** database does not: migrations contain destructive statements, and a deploy must not apply DDL to production just by starting up. Run `pnpm db:migrate` from your release step when `TURSO_DATABASE_URL` points at Turso. Setting `DB_AUTO_MIGRATE=1` opts back into migrating on boot.

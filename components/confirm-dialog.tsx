@@ -20,10 +20,8 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  confirmVariant = "destructive",
   pending = false,
   onConfirm,
-  onCancel,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -32,10 +30,8 @@ export function ConfirmDialog({
   title: string;
   description: ReactNode;
   confirmLabel: string;
-  confirmVariant?: "destructive" | "default";
   pending?: boolean;
   onConfirm: () => void;
-  onCancel?: () => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,17 +45,10 @@ export function ConfirmDialog({
         </DialogHeader>
         <DialogDescription>{description}</DialogDescription>
         <DialogFooter>
-          <ControlButton
-            type="button"
-            variant="outline"
-            onClick={() => {
-              onCancel?.();
-              onOpenChange(false);
-            }}
-          >
+          <ControlButton type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </ControlButton>
-          <ControlButton variant={confirmVariant} disabled={pending} onClick={onConfirm}>
+          <ControlButton variant="destructive" disabled={pending} onClick={onConfirm}>
             {confirmLabel}
           </ControlButton>
         </DialogFooter>

@@ -95,14 +95,13 @@ export default function DocsPage() {
           <SectionHeading n="04" title="Open a folio" />
           <p className="leading-relaxed text-pretty">
             Every paper page is public — shared collections can link straight through. You get the
-            abstract, a heuristic sketch of the claim, and neighbours in the stack. Saving, status,
-            a live briefing, and “ask the abstract” wait for an account (and, for the AI, your own
-            OpenRouter key).
+            abstract and neighbours in the stack. Saving, status, a briefing, and “ask the abstract”
+            wait for an account (and, for the AI, your own OpenRouter key).
           </p>
           <FolioShot
             src="/folio/paper.png"
             alt="Paper page for Attention Is All You Need, showing abstract, briefing panel, and ask-the-abstract chat."
-            caption="Without a key, the briefing is a sketch from the abstract. With one, arXivDesk extracts claims, methods, limitations, novelty, and who should actually read it."
+            caption="Press Analyze and arXivDesk extracts claims, methods, limitations, novelty, and who should actually read it. Nothing runs until you ask, because every run spends your own credits."
           />
         </section>
 
@@ -169,8 +168,8 @@ export default function DocsPage() {
                 you have open. If the PDF is required, arXivDesk will say so.
               </li>
               <li>
-                <span className="font-medium">Heuristic fallback</span> — without a key you still
-                get a sketch from the abstract, never a blank page.
+                <span className="font-medium">Nothing runs on its own</span> — briefings and chat
+                spend your credits, so they start when you press the button, never on page load.
               </li>
             </ul>
           </div>

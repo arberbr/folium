@@ -3,8 +3,10 @@ import type { PaperBriefing } from "@/lib/ai/schema";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import { PAPER_CACHE_TTL_MS } from "@/lib/data/cache";
 
+// In-memory: each test file gets its own throwaway database, and nothing is
+// left behind in ./data for the next run to trip over.
 vi.hoisted(() => {
-  process.env.TURSO_DATABASE_URL = `file:./data/vitest-${crypto.randomUUID()}.db`;
+  process.env.TURSO_DATABASE_URL = ":memory:";
 });
 
 const getPaper = vi.fn();

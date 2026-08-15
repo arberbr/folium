@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoryPills } from "@/components/category-pills";
 import { OffsetPager } from "@/components/offset-pager";
 import { PaperCard } from "@/components/paper-card";
+import { PaperGrid } from "@/components/paper-grid";
 import { SearchBar } from "@/components/search-bar";
 import { categoryLabel, FEATURED_CATEGORIES } from "@/lib/arxiv/categories";
 import { searchArxiv } from "@/lib/arxiv/client";
@@ -65,11 +66,11 @@ export default async function ExplorePage({
         <CategoryPills active={category} interests={interests} />
       </header>
 
-      <section className="grid gap-5 md:grid-cols-2">
+      <PaperGrid>
         {result.papers.map((paper) => (
           <PaperCard key={paper.id} paper={paper} />
         ))}
-      </section>
+      </PaperGrid>
 
       <OffsetPager
         hrefFor={hrefFor}

@@ -23,7 +23,6 @@ export function OpenRouterPanel() {
   const [connection, setConnection] = useState<OpenRouterConnection | null>(null);
   const [key, setKey] = useState("");
   const [editing, setEditing] = useState(false);
-  const [pendingConnect, setPendingConnect] = useState(false);
   const { pending, run } = useServerAction();
 
   // Clerk mounts custom pages inside its own portal, so there is no server render to
@@ -43,24 +42,16 @@ export function OpenRouterPanel() {
   }, []);
 
   function connect() {
-    setPendingConnect(true);
-    void saveOpenRouterKeyAction(key)
-      .then((result) => {
-        if (!result.ok) {
-          toast.error(result.error);
-          return;
-        }
-        setConnection(result.connection);
+    run({
+      action: () => saveOpenRouterKeyAction(key),
+      success: "OpenRouter connected — analyses now run on your key.",
+      error: "Could not save that key",
+      onSuccess: (result) => {
+        setConnection(result);
         setKey("");
         setEditing(false);
-        toast.success("OpenRouter connected — analyses now run on your key.");
-      })
-      .catch(() => {
-        toast.error("Could not save that key");
-      })
-      .finally(() => {
-        setPendingConnect(false);
-      });
+      },
+    });
   }
 
   function disconnect() {
@@ -80,8 +71,8 @@ export function OpenRouterPanel() {
         <h1 className="font-heading text-xl">Integrations</h1>
         <p className="text-sm text-muted-foreground">
           arXivDesk runs every briefing and paper chat on your own model provider. Without a key
-          connected, papers still open — you just get a heuristic sketch of the abstract instead of
-          a live briefing.
+          connected, papers still open — you just cannot generate a briefing or ask questions about
+          them.
         </p>
       </header>
 
@@ -121,14 +112,14 @@ export function OpenRouterPanel() {
               aria-label="OpenRouter API key"
             />
             <div className="flex flex-wrap gap-2">
-              <ControlButton type="submit" disabled={pendingConnect || !key.trim()}>
-                {pendingConnect ? "Verifying…" : "Connect"}
+              <ControlButton type="submit" disabled={pending || !key.trim()}>
+                {pending ? "Verifying…" : "Connect"}
               </ControlButton>
               {connection.connected ? (
                 <ControlButton
                   type="button"
                   variant="ghost"
-                  disabled={pendingConnect}
+                  disabled={pending}
                   onClick={() => {
                     setEditing(false);
                     setKey("");

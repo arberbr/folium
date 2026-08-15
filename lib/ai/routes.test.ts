@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/auth", () => ({
-  requireUserId: vi.fn(async () => "user_1"),
+  requireUserId: vi.fn(),
 }));
 
 vi.mock("@/lib/data/papers", () => ({
@@ -11,15 +11,16 @@ vi.mock("@/lib/data/papers", () => ({
 
 vi.mock("@/lib/ai/models", () => ({
   resolveModel: vi.fn(),
-  NO_MODEL_MESSAGE: "Connect your OpenRouter key",
 }));
 
 import { resolveModel } from "@/lib/ai/models";
 import { POST_ANALYZE, POST_CHAT } from "@/lib/ai/routes";
+import { requireUserId } from "@/lib/auth";
 import { loadPaper } from "@/lib/data/papers";
 
 const loadPaperMock = vi.mocked(loadPaper);
 const resolveModelMock = vi.mocked(resolveModel);
+const requireUserIdMock = vi.mocked(requireUserId);
 
 const paper = {
   id: "1706.03762",
@@ -47,6 +48,32 @@ function jsonRequest(url: string, body: unknown) {
 beforeEach(() => {
   loadPaperMock.mockReset();
   resolveModelMock.mockReset();
+  requireUserIdMock.mockReset();
+  requireUserIdMock.mockResolvedValue("user_1");
+});
+
+/**
+ * These two routes spend the reader's own OpenRouter credits, and proxy.ts is a
+ * session handshake only — requireUserId is the whole gate. Assert it runs
+ * before any work and that its rejection is never swallowed into a response.
+ */
+describe.each([
+  ["POST_ANALYZE", POST_ANALYZE, { arxivId: "1706.03762" }],
+  [
+    "POST_CHAT",
+    POST_CHAT,
+    { arxivId: "1706.03762", messages: [{ id: "m1", role: "user", parts: [{ type: "text" }] }] },
+  ],
+] as const)("%s authentication", (_name, handler, body) => {
+  it("refuses an anonymous request instead of answering it", async () => {
+    requireUserIdMock.mockRejectedValueOnce(new Error("Unauthorized"));
+
+    await expect(handler(jsonRequest("http://localhost/api/papers", body))).rejects.toThrow(
+      /Unauthorized/,
+    );
+    expect(loadPaperMock).not.toHaveBeenCalled();
+    expect(resolveModelMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("POST_ANALYZE", () => {

@@ -5,6 +5,7 @@ import { PaperCard } from "@/components/paper-card";
 import { MissingPapersNotice, PaperGrid } from "@/components/paper-grid";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getPublicCollectionByShareToken } from "@/lib/data/user";
+import { pluralize } from "@/lib/format";
 
 export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -33,7 +34,7 @@ export default async function SharedCollectionPage({
     <div className="space-y-8">
       <PageHeader title={collection.name}>
         <p className="text-sm text-muted-foreground">
-          {collection.paperIds.length} paper{collection.paperIds.length === 1 ? "" : "s"}
+          {pluralize(collection.paperIds.length, "paper")}
         </p>
       </PageHeader>
 

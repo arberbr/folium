@@ -7,6 +7,7 @@ import { PaperCard } from "@/components/paper-card";
 import { MissingPapersNotice, PaperGrid } from "@/components/paper-grid";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getCollectionBySlug } from "@/lib/data/user";
+import { pluralize } from "@/lib/format";
 import { originFromForwarded } from "@/lib/http/origin";
 
 async function requestOrigin() {
@@ -64,7 +65,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
           />
         </div>
         <p className="text-sm text-muted-foreground">
-          {collection.paperIds.length} paper{collection.paperIds.length === 1 ? "" : "s"}
+          {pluralize(collection.paperIds.length, "paper")}
         </p>
       </header>
 

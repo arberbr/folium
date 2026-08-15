@@ -4,6 +4,7 @@ import { PaperCard } from "@/components/paper-card";
 import { MissingPapersNotice, PaperGrid } from "@/components/paper-grid";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getLibrary } from "@/lib/data/user";
+import { pluralize } from "@/lib/format";
 import { groupByReadingStatus } from "@/lib/reading-status";
 
 export default async function LibraryPage() {
@@ -18,9 +19,7 @@ export default async function LibraryPage() {
   return (
     <div className="space-y-8">
       <PageHeader title="Library">
-        <p className="text-muted-foreground">
-          {items.length} paper{items.length === 1 ? "" : "s"}
-        </p>
+        <p className="text-muted-foreground">{pluralize(items.length, "paper")}</p>
       </PageHeader>
 
       {items.length === 0 ? (

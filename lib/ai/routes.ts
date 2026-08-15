@@ -9,7 +9,8 @@ import {
   type UIMessage,
 } from "ai";
 import { paperContext } from "@/lib/ai/briefing";
-import { NO_MODEL_MESSAGE, resolveModel } from "@/lib/ai/models";
+import { CONNECT_KEY_MESSAGE } from "@/lib/ai/messages";
+import { resolveModel } from "@/lib/ai/models";
 import { briefingSchema } from "@/lib/ai/schema";
 import { requireUserId } from "@/lib/auth";
 import { loadPaper, saveBriefing } from "@/lib/data/papers";
@@ -37,7 +38,7 @@ export async function POST_ANALYZE(req: Request) {
 
   const briefingModel = await resolveModel(userId, "briefing");
   if (!briefingModel) {
-    return Response.json({ error: NO_MODEL_MESSAGE }, { status: 503 });
+    return Response.json({ error: CONNECT_KEY_MESSAGE }, { status: 503 });
   }
 
   const result = streamText({
@@ -83,7 +84,7 @@ export async function POST_CHAT(req: Request) {
 
   const chatModel = await resolveModel(userId, "chat");
   if (!chatModel) {
-    return Response.json({ error: NO_MODEL_MESSAGE }, { status: 503 });
+    return Response.json({ error: CONNECT_KEY_MESSAGE }, { status: 503 });
   }
 
   const result = streamText({

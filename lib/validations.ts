@@ -31,11 +31,16 @@ export const interestsSchema = z
   .max(Object.keys(CATEGORY_LABEL).length)
   .refine((ids) => ids.every((id) => id in CATEGORY_LABEL), "Unknown arXiv category");
 
+export const OPENROUTER_KEY_PREFIX = "sk-or-";
+
 export const openRouterKeySchema = z
   .string()
   .trim()
   .min(1)
-  .refine((key) => key.startsWith("sk-or-"), "OpenRouter keys start with “sk-or-”.");
+  .refine(
+    (key) => key.startsWith(OPENROUTER_KEY_PREFIX),
+    `OpenRouter keys start with “${OPENROUTER_KEY_PREFIX}”.`,
+  );
 
 export const uiMessageSchema = z.object({
   id: z.string().min(1),

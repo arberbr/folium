@@ -1,4 +1,6 @@
 import { clerkClient } from "@clerk/nextjs/server";
+import { ActionError } from "@/lib/errors";
+import { OPENROUTER_KEY_PREFIX } from "@/lib/validations";
 
 /**
  * Bring-your-own-key storage for OpenRouter.
@@ -63,7 +65,8 @@ export async function getOpenRouterConnection(userId: string): Promise<OpenRoute
 
 /**
  * Asks OpenRouter to identify the key. This both validates it and gives us the key's
- * dashboard label, which is more useful than a bare "connected" badge.
+ * dashboard label, which is more useful than a bare "connected" badge. Throws
+ * ActionError so the reader sees the reason rather than a redacted failure.
  */
 async function verifyKey(key: string) {
   let response: Response;
@@ -73,43 +76,37 @@ async function verifyKey(key: string) {
       cache: "no-store",
     });
   } catch {
-    return { ok: false as const, error: "Could not reach OpenRouter. Try again in a moment." };
+    throw new ActionError("Could not reach OpenRouter. Try again in a moment.");
   }
 
   if (response.status === 401 || response.status === 403) {
-    return { ok: false as const, error: "OpenRouter rejected that key." };
+    throw new ActionError("OpenRouter rejected that key.");
   }
   if (!response.ok) {
-    return {
-      ok: false as const,
-      error: `OpenRouter returned ${response.status}. Try again later.`,
-    };
+    throw new ActionError(`OpenRouter returned ${response.status}. Try again later.`);
   }
 
   const body = (await response.json().catch(() => null)) as { data?: { label?: unknown } } | null;
-  const label = typeof body?.data?.label === "string" ? body.data.label : null;
-  return { ok: true as const, label };
+  return typeof body?.data?.label === "string" ? body.data.label : null;
 }
 
-export async function saveOpenRouterKey(userId: string, rawKey: string) {
+export async function saveOpenRouterKey(
+  userId: string,
+  rawKey: string,
+): Promise<OpenRouterConnection> {
   const key = rawKey.trim();
-  if (!key.startsWith("sk-or-")) {
-    return { ok: false as const, error: "OpenRouter keys start with “sk-or-”." };
+  if (!key.startsWith(OPENROUTER_KEY_PREFIX)) {
+    throw new ActionError(`OpenRouter keys start with “${OPENROUTER_KEY_PREFIX}”.`);
   }
 
-  const verified = await verifyKey(key);
-  if (!verified.ok) return verified;
-
-  const connection: StoredConnection = { key, hint: maskKey(key), label: verified.label };
+  const label = await verifyKey(key);
+  const connection: StoredConnection = { key, hint: maskKey(key), label };
   const clerk = await clerkClient();
   await clerk.users.updateUserMetadata(userId, {
     privateMetadata: { [METADATA_KEY]: connection },
   });
 
-  return {
-    ok: true as const,
-    connection: { connected: true, hint: connection.hint, label: connection.label },
-  };
+  return { connected: true, hint: connection.hint, label: connection.label };
 }
 
 export async function clearOpenRouterKey(userId: string) {

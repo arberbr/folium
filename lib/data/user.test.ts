@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
+// In-memory: each test file gets its own throwaway database, and nothing is
+// left behind in ./data for the next run to trip over.
 vi.hoisted(() => {
-  process.env.TURSO_DATABASE_URL = `file:./data/vitest-${crypto.randomUUID()}.db`;
+  process.env.TURSO_DATABASE_URL = ":memory:";
 });
 
 import { ready } from "@/lib/db";

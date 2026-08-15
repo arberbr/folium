@@ -5,7 +5,8 @@ import { readOpenRouterKey } from "@/lib/ai/openrouter";
 /**
  * arXivDesk is bring-your-own-key: every live briefing and chat runs on the reader's own
  * OpenRouter key, so there is no shared provider credential and no AI cost to the host.
- * Readers without a key still get the heuristic sketch built from the abstract.
+ * Because every run spends the reader's own credits, analysis is never automatic —
+ * it happens only when they ask for it.
  */
 export const MODELS: Record<ModelRole, string> = {
   briefing: "openai/gpt-5.5",
@@ -26,7 +27,7 @@ export type ResolvedModel = {
   id: string;
 };
 
-/** Returns null when the user has not connected a key — callers should answer 503. */
+/** Returns null when the user has not connected a key — callers answer 503 with CONNECT_KEY_MESSAGE. */
 export async function resolveModel(userId: string, role: ModelRole): Promise<ResolvedModel | null> {
   const key = await readOpenRouterKey(userId);
   if (!key) return null;
@@ -39,6 +40,3 @@ export async function resolveModel(userId: string, role: ModelRole): Promise<Res
   const id = MODELS[role];
   return { model: openrouter.chat(id), id };
 }
-
-export const NO_MODEL_MESSAGE =
-  "Connect your OpenRouter key under Integrations in your account menu to run a live briefing.";

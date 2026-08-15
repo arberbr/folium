@@ -56,14 +56,14 @@ export async function upsertLibraryItem(input: {
   const now = new Date();
 
   if (existing) {
+    // No status means "just make sure it is saved" — a plain save must not
+    // silently reset a paper the reader has already marked as reading or done.
+    const status = input.status ?? existing.status;
     await db
       .update(libraryItems)
-      .set({
-        status: input.status ?? existing.status,
-        updatedAt: now,
-      })
+      .set({ status, updatedAt: now })
       .where(eq(libraryItems.id, existing.id));
-    return { ...existing, status: input.status ?? existing.status };
+    return { ...existing, status, updatedAt: now };
   }
 
   const item = {
@@ -186,7 +186,9 @@ export async function renameCollection(userId: string, collectionId: string, nam
 
   await db.update(collections).set({ name, slug }).where(eq(collections.id, collectionId));
 
-  return { previousSlug: collection.slug, ...collection, name, slug };
+  // Spread first, then the changed fields — revalidateCollection needs both the
+  // new slug and the old one, and key order is the only thing keeping them apart.
+  return { ...collection, previousSlug: collection.slug, name, slug };
 }
 
 async function uniqueShareToken() {

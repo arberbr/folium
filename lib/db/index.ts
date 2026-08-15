@@ -36,11 +36,27 @@ function createDb() {
   return drizzle(client, { schema });
 }
 
-if (!globalForDb.appDb) {
-  globalForDb.appDb = createDb();
+globalForDb.appDb ??= createDb();
+
+export const db = globalForDb.appDb;
+
+/**
+ * True for a local file (or in-memory) database, which is disposable and safe to
+ * migrate on boot. A remote Turso URL is somebody's real data.
+ */
+function isLocalDb(url: string) {
+  return url.startsWith("file:") || url === ":memory:";
 }
 
-export const db = globalForDb.appDb ?? createDb();
+/**
+ * Migrations include destructive statements, so a deploy must not apply them to
+ * a remote database just by starting up — run `pnpm db:migrate` from CI, or set
+ * DB_AUTO_MIGRATE=1 to accept the risk. Local databases always migrate, so
+ * `pnpm dev` still works against a fresh ./data/local.db with no setup.
+ */
+export function shouldAutoMigrate() {
+  return isLocalDb(resolveUrl()) || Boolean(env.DB_AUTO_MIGRATE);
+}
 
 /** Apply Drizzle migrations once per process. Call from instrumentation and tests. */
 export async function ready() {

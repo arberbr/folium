@@ -38,7 +38,18 @@ import {
   readingStatusSchema,
 } from "@/lib/validations";
 
-export async function savePaperAction(arxivId: string, status = "queued") {
+/** Adds the paper to the library. An item that is already there keeps the status it has. */
+export async function savePaperAction(arxivId: string) {
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const id = parseWith(arxivIdSchema, arxivId);
+    await upsertLibraryItem({ userId, arxivId: id });
+    revalidateLibraryPaper(id);
+  });
+}
+
+/** Sets the reading status, adding the paper to the library first if it is not there yet. */
+export async function updatePaperStatusAction(arxivId: string, status: string) {
   return asAction(async () => {
     const userId = await requireUserId();
     const id = parseWith(arxivIdSchema, arxivId);
@@ -46,10 +57,6 @@ export async function savePaperAction(arxivId: string, status = "queued") {
     await upsertLibraryItem({ userId, arxivId: id, status: nextStatus });
     revalidateLibraryPaper(id);
   });
-}
-
-export async function updatePaperStatusAction(arxivId: string, status: string) {
-  return savePaperAction(arxivId, status);
 }
 
 export async function removePaperAction(arxivId: string) {
@@ -141,20 +148,19 @@ export async function saveInterestsAction(interests: string[]) {
   });
 }
 
+/** A read, not a mutation — no ActionError to catch, so no asAction envelope. */
 export async function getOpenRouterConnectionAction(): Promise<OpenRouterConnection> {
   const userId = await requireUserId();
   return getOpenRouterConnection(userId);
 }
 
 export async function saveOpenRouterKeyAction(key: string) {
-  const userId = await requireUserId();
-  const parsed = openRouterKeySchema.safeParse(key);
-  if (!parsed.success) {
-    return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Invalid key" };
-  }
-  const result = await saveOpenRouterKey(userId, parsed.data);
-  if (result.ok) revalidatePaperPages();
-  return result;
+  return asAction(async () => {
+    const userId = await requireUserId();
+    const connection = await saveOpenRouterKey(userId, parseWith(openRouterKeySchema, key));
+    revalidatePaperPages();
+    return connection;
+  });
 }
 
 export async function disconnectOpenRouterAction() {

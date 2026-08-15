@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { OffsetPager } from "@/components/offset-pager";
 import { PageHeader } from "@/components/page-header";
 import { PaperCard } from "@/components/paper-card";
+import { PaperGrid } from "@/components/paper-grid";
 import { searchArxiv } from "@/lib/arxiv/client";
 import type { ArxivSearchResult } from "@/lib/arxiv/types";
 import { getOrCreateProfile } from "@/lib/data/user";
@@ -17,14 +18,15 @@ export default async function TodayPage({
 
   const params = await searchParams;
   const start = Number(params.start ?? 0) || 0;
+  // getOrCreateProfile seeds DEFAULT_INTERESTS and interestsSchema enforces
+  // min(1), so this list is never empty and needs no fallback category.
   const profile = await getOrCreateProfile(userId);
-  const interests = profile.interests.length ? profile.interests : ["cs.AI"];
 
   let result: ArxivSearchResult = { papers: [], total: 0, start, maxResults: PAGE_SIZE };
   let fetchError = false;
   try {
     result = await searchArxiv({
-      categories: interests,
+      categories: profile.interests,
       start,
       maxResults: PAGE_SIZE,
     });
@@ -40,11 +42,11 @@ export default async function TodayPage({
         <p className="text-sm text-muted-foreground">No preprints came back. Try again in a bit.</p>
       ) : (
         <>
-          <section className="grid gap-5 md:grid-cols-2">
+          <PaperGrid>
             {result.papers.map((paper) => (
               <PaperCard key={paper.id} paper={paper} />
             ))}
-          </section>
+          </PaperGrid>
 
           <OffsetPager
             hrefFor={(next) => (next === 0 ? "/today" : `/today?start=${next}`)}

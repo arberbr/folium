@@ -31,6 +31,11 @@ export function uniqueSlug(name: string, taken: Set<string>) {
   return `${base}-${n}`;
 }
 
+/** "1 paper" / "3 papers". Only for nouns that pluralize by adding "s". */
+export function pluralize(count: number, noun: string) {
+  return `${count} ${noun}${count === 1 ? "" : "s"}`;
+}
+
 export function formatAuthors(names: { name: string }[], limit = 3) {
   if (!names.length) return "Unknown authors";
   if (names.length <= limit) {

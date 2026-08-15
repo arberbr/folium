@@ -10,15 +10,16 @@ import { SignInPrompt } from "@/components/sign-in-prompt";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { readableAiError } from "@/lib/ai/error-message";
+import { CONNECT_KEY_CHAT_MESSAGE } from "@/lib/ai/messages";
 
 export function PaperChat({
   arxivId,
-  signedIn = true,
+  signedIn,
   canChat,
 }: {
   arxivId: string;
   /** The chat endpoint requires auth, so signed-out readers get a prompt. */
-  signedIn?: boolean;
+  signedIn: boolean;
   /** False when the reader has no OpenRouter key — the composer would only 503. */
   canChat: boolean;
 }) {
@@ -95,8 +96,7 @@ export function PaperChat({
         ) : !canChat ? (
           <div className="rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Connect your OpenRouter key under Integrations in your account menu to ask questions
-              about this paper.
+              {CONNECT_KEY_CHAT_MESSAGE}
             </p>
           </div>
         ) : (

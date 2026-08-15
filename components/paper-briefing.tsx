@@ -2,14 +2,30 @@
 
 import { useObject } from "@ai-sdk/react";
 import { Sparkles } from "lucide-react";
-import { useEffect } from "react";
 import { Chip, ChipGroup } from "@/components/chip";
 import { ControlButton } from "@/components/control-button";
 import { SignInPrompt } from "@/components/sign-in-prompt";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { readableAiError } from "@/lib/ai/error-message";
+import { CONNECT_KEY_MESSAGE } from "@/lib/ai/messages";
 import { briefingSchema, type PaperBriefing } from "@/lib/ai/schema";
+
+/**
+ * What the panel renders. Every field is optional because `useObject` streams
+ * the briefing in pieces.
+ */
+type BriefingView = {
+  tldr?: string;
+  audience?: string;
+  claims?: (string | undefined)[];
+  methods?: (string | undefined)[];
+  limitations?: (string | undefined)[];
+  whyItMatters?: string;
+  relatedQuestions?: (string | undefined)[];
+  difficulty?: PaperBriefing["difficulty"];
+  novelty?: number;
+};
 
 function difficultyCopy(value: PaperBriefing["difficulty"] | undefined) {
   switch (value) {
@@ -28,32 +44,32 @@ function difficultyCopy(value: PaperBriefing["difficulty"] | undefined) {
   }
 }
 
+/**
+ * Analysis spends the reader's own OpenRouter credits, so it only ever runs from
+ * an explicit click. There is deliberately no effect that submits on mount:
+ * `submit` is a new function on every render, so an effect depending on it
+ * re-fires itself in a loop, and every iteration costs money.
+ */
 export function PaperBriefingPanel({
   arxivId,
   initial,
   canStream,
-  cached = false,
-  signedIn = true,
+  signedIn,
 }: {
   arxivId: string;
+  /** A briefing this reader has already generated, or null if none is stored. */
   initial: PaperBriefing | null;
   canStream: boolean;
-  cached?: boolean;
-  /** Signed-out readers still see the sketch, but nothing may call the API. */
-  signedIn?: boolean;
+  /** Signed-out readers see the empty state, and nothing may call the API. */
+  signedIn: boolean;
 }) {
   const { object, submit, isLoading, error } = useObject({
     api: "/api/papers/analyze",
     schema: briefingSchema,
   });
 
-  useEffect(() => {
-    if (!initial && canStream) {
-      submit({ arxivId });
-    }
-  }, [arxivId, canStream, initial, submit]);
-
-  const briefing = (object as PaperBriefing | undefined) ?? initial;
+  const streamed: BriefingView | undefined = object;
+  const briefing: BriefingView | null = streamed ?? initial;
   const errorText = readableAiError(
     error,
     "The briefing could not be generated. Check your OpenRouter key.",
@@ -71,32 +87,25 @@ export function PaperBriefingPanel({
         {canStream ? (
           <ControlButton variant="outline" disabled={isLoading} onClick={() => submit({ arxivId })}>
             <Sparkles />
-            {cached ? "Regenerate" : "Analyze"}
+            {initial ? "Regenerate" : "Analyze"}
           </ControlButton>
         ) : null}
       </CardHeader>
       <CardContent className="space-y-6">
-        {!briefing && isLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-6 w-2/3" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-20 w-full" />
-          </div>
-        ) : null}
-
         {errorText ? <p className="text-sm text-destructive">{errorText}</p> : null}
 
         {!signedIn ? (
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/80 bg-secondary/40 px-4 py-3">
             <p className="text-sm leading-relaxed text-muted-foreground">
-              This is a heuristic sketch from the abstract. Sign in for a live briefing.
+              Sign in and connect a model key to generate a briefing for this paper.
             </p>
             <SignInPrompt label="Sign in" />
           </div>
-        ) : !canStream && !briefing ? (
+        ) : !canStream ? (
+          <p className="text-sm leading-relaxed text-muted-foreground">{CONNECT_KEY_MESSAGE}</p>
+        ) : !briefing && !isLoading ? (
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Connect your OpenRouter key under Integrations in your account menu to stream a live
-            briefing. Until then, arXivDesk keeps a heuristic sketch from the abstract.
+            No briefing yet. Analyze reads the abstract and runs on your OpenRouter key.
           </p>
         ) : null}
 
@@ -125,9 +134,35 @@ export function PaperBriefingPanel({
             ) : null}
             <BriefingList title="Open questions" items={briefing.relatedQuestions} />
           </>
-        ) : null}
+        ) : (
+          <BriefingPlaceholder />
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * The empty state. Deliberately inert bars rather than text derived from the
+ * abstract: anything sentence-shaped here reads as analysis the model never did.
+ */
+function BriefingPlaceholder() {
+  return (
+    <div aria-hidden className="space-y-6 opacity-40">
+      <div className="space-y-2">
+        <Skeleton className="h-6 w-11/12" />
+        <Skeleton className="h-6 w-2/3" />
+      </div>
+      {["Claims", "Methods", "Limitations"].map((title) => (
+        <section key={title}>
+          <h4 className="mb-2 text-xs tracking-[0.2em] text-primary uppercase">{title}</h4>
+          <div className="space-y-2 border-l-2 border-primary/30 pl-3">
+            <Skeleton className="h-3.5 w-full" />
+            <Skeleton className="h-3.5 w-4/5" />
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }
 

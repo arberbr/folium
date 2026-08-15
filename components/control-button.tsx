@@ -2,24 +2,8 @@ import type { ComponentProps } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/** The subset of Button sizes arXivDesk uses, each with its own height override below. */
 type ControlSize = "default" | "lg" | "icon" | "icon-lg";
-
-function nativeSize(size: ControlSize): NonNullable<ComponentProps<typeof Button>["size"]> {
-  switch (size) {
-    case "default":
-      return "default";
-    case "lg":
-      return "lg";
-    case "icon":
-      return "icon";
-    case "icon-lg":
-      return "icon-lg";
-    default: {
-      const _exhaustive: never = size;
-      return _exhaustive;
-    }
-  }
-}
 
 function sizeClass(size: ControlSize) {
   switch (size) {
@@ -44,10 +28,6 @@ export function ControlButton({
   ...props
 }: Omit<ComponentProps<typeof Button>, "size"> & { size?: ControlSize }) {
   return (
-    <Button
-      size={nativeSize(size)}
-      className={cn("cursor-pointer", sizeClass(size), className)}
-      {...props}
-    />
+    <Button size={size} className={cn("cursor-pointer", sizeClass(size), className)} {...props} />
   );
 }

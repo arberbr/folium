@@ -14,7 +14,6 @@ import { PaperGridSkeleton } from "@/components/paper-skeletons";
 import { SaveButton } from "@/components/save-button";
 import { SignInPrompt } from "@/components/sign-in-prompt";
 import { StatusToggle } from "@/components/status-toggle";
-import { heuristicBriefing } from "@/lib/ai/briefing";
 import { hasAiAccess, MODELS } from "@/lib/ai/models";
 import { categoryLabel } from "@/lib/arxiv/categories";
 import { relatedPapers } from "@/lib/arxiv/client";
@@ -82,7 +81,6 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
     hasAiAccess(userId),
   ]);
 
-  const briefing = cached?.briefing ?? heuristicBriefing(paper);
   const inCollections = shelves.filter((shelf) => shelf.paperIds.includes(paper.id));
   const signedIn = Boolean(userId);
 
@@ -154,9 +152,8 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
       <div className="grid items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <PaperBriefingPanel
           arxivId={paper.id}
-          initial={briefing}
+          initial={cached?.briefing ?? null}
           canStream={aiAccess && signedIn}
-          cached={Boolean(cached)}
           signedIn={signedIn}
         />
         <PaperChat arxivId={paper.id} signedIn={signedIn} canChat={aiAccess && signedIn} />

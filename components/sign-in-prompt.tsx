@@ -1,29 +1,16 @@
 "use client";
 
 import { SignInButton } from "@clerk/nextjs";
-import type { ComponentProps } from "react";
 import { ControlButton } from "@/components/control-button";
-
-type ControlButtonProps = ComponentProps<typeof ControlButton>;
 
 /**
  * Paper pages are readable signed out, so every feature that needs an account
  * degrades to this rather than disappearing without explanation.
  */
-export function SignInPrompt({
-  label = "Sign in",
-  variant = "outline",
-  size,
-}: {
-  label?: string;
-  variant?: ControlButtonProps["variant"];
-  size?: ControlButtonProps["size"];
-}) {
+export function SignInPrompt({ label = "Sign in" }: { label?: string }) {
   return (
     <SignInButton mode="modal">
-      <ControlButton variant={variant} size={size}>
-        {label}
-      </ControlButton>
+      <ControlButton variant="outline">{label}</ControlButton>
     </SignInButton>
   );
 }
