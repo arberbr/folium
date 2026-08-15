@@ -20,19 +20,17 @@ export function PageShell({ children }: { children: React.ReactNode }) {
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full bg-background">
-      <div className={cn(SHELL_CONTAINER, "flex h-16 items-center justify-between gap-6")}>
-        <Link href="/" className="group flex items-center gap-3">
+      <div className={cn(SHELL_CONTAINER, "flex h-16 items-center justify-between gap-4")}>
+        <Link href="/" className="group flex shrink-0 items-center gap-3">
           <span className="flex size-8 items-center justify-center rounded-sm bg-primary text-[0.7rem] font-semibold tracking-[0.18em] text-primary-foreground">
             F
           </span>
           <span className="font-heading text-xl tracking-tight">Folium</span>
         </Link>
 
-        <Show when="signed-in">
-          <NavLinks />
-        </Show>
+        <NavLinks />
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <ThemeSwitcher />
           <Show when="signed-out">
             <SignInButton mode="modal">
@@ -40,9 +38,6 @@ export function SiteHeader() {
             </SignInButton>
           </Show>
           <Show when="signed-in">
-            <ControlButton variant="ghost" asChild className="md:hidden">
-              <Link href="/today">Today</Link>
-            </ControlButton>
             <ControlButton variant="outline" asChild>
               <Link href="/settings">Interests</Link>
             </ControlButton>
