@@ -16,6 +16,7 @@ Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.
 
 - Next.js 16 (App Router, React Compiler, Turbopack)
 - React 19 + Tailwind CSS 4 + shadcn/ui
+- TypeScript 7 + Biome + pnpm
 - Clerk v7
 - Drizzle ORM + libSQL
 - Vercel AI SDK 7 + `@openrouter/ai-sdk-provider`
@@ -23,7 +24,7 @@ Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.
 ## Setup
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env.local
 ```
 
@@ -32,5 +33,5 @@ The only thing to fill in is **Clerk** — create an application at [dashboard.c
 Then:
 
 ```bash
-npm run dev
+pnpm dev
 ```
