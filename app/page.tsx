@@ -68,9 +68,15 @@ export default async function LandingPage() {
 
   return (
     <PageShell>
-      <main className="relative flex-1 overflow-hidden">
+      {/*
+        The sample card is rotated and carries a wide shadow, so it paints ~13px past its own box:
+        about 5px of rotated corner plus 8px of shadow. Plain `overflow-hidden` shaved both off at
+        the gutter. `clip` still refuses to scroll — which is what kept the reveal animation from
+        flashing a scrollbar — while the clip margin lets those 13px through.
+      */}
+      <main className="relative flex-1 overflow-clip [overflow-clip-margin:16px]">
         <section className="flex flex-col items-center py-20 text-center lg:py-28">
-          <h1 className="font-heading reveal reveal-delay-1 mt-5 max-w-3xl text-5xl leading-[1.05] text-pretty sm:text-7xl">
+          <h1 className="font-heading reveal reveal-delay-1 max-w-3xl text-5xl leading-[1.05] text-pretty sm:text-7xl">
             Read less.
             <br />
             Learn more.

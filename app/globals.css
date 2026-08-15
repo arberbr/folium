@@ -74,6 +74,10 @@
   --chart-4: oklch(0.7 0.08 85);
   --chart-5: oklch(0.45 0.04 280);
   --radius: 0.7rem;
+  /* The shell's side gutter. Anything that spans the viewport but has to line up with page
+     content reads this rather than restating the breakpoint. Kept in px so JS consumers
+     (Radix collision padding) can parse it without assuming a root font size. */
+  --shell-gutter: 20px;
   --sidebar: oklch(0.97 0.01 220);
   --sidebar-foreground: oklch(0.23 0.035 250);
   --sidebar-primary: oklch(0.42 0.1 195);
@@ -82,6 +86,12 @@
   --sidebar-accent-foreground: oklch(0.28 0.04 250);
   --sidebar-border: oklch(0.88 0.018 230);
   --sidebar-ring: oklch(0.5 0.09 195);
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --shell-gutter: 32px;
+  }
 }
 
 .dark {
