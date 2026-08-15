@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { CreateShelfForm } from "@/components/create-shelf-form";
+import { PageHeader } from "@/components/page-header";
 import { createShelfAction } from "@/lib/actions";
 import { getCollections } from "@/lib/data/user";
 import { collectionHref } from "@/lib/format";
@@ -16,12 +17,11 @@ export default async function CollectionsPage() {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-3">
-        <h1 className="font-heading text-4xl sm:text-5xl">Collections</h1>
+      <PageHeader title="Collections">
         <p className="text-muted-foreground">
           {shelves.length} collection{shelves.length === 1 ? "" : "s"}
         </p>
-      </header>
+      </PageHeader>
 
       <section className="grid gap-3 md:grid-cols-3">
         <CreateShelfForm action={createShelfAction} />

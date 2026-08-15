@@ -16,6 +16,13 @@ const chipVariants = cva(
           "border-border/80 bg-muted/70 text-muted-foreground before:bg-muted-foreground/70 hover:border-border hover:bg-muted hover:text-foreground",
         shelf:
           "cursor-pointer border-border/50 bg-secondary text-secondary-foreground before:hidden hover:border-border hover:bg-muted hover:text-foreground",
+        queued:
+          "border-amber-500/40 bg-amber-500/12 text-amber-800 before:bg-amber-500 hover:border-amber-500/55 hover:bg-amber-500/18 dark:text-amber-200",
+        reading:
+          "border-sky-500/40 bg-sky-500/12 text-sky-800 before:bg-sky-500 hover:border-sky-500/55 hover:bg-sky-500/18 dark:text-sky-200",
+        done: "border-emerald-500/40 bg-emerald-500/12 text-emerald-800 before:bg-emerald-500 hover:border-emerald-500/55 hover:bg-emerald-500/18 dark:text-emerald-200",
+        skipped:
+          "border-rose-400/40 bg-rose-400/12 text-rose-800 before:bg-rose-400 hover:border-rose-400/55 hover:bg-rose-400/18 dark:text-rose-300",
       },
       size: {
         sm: "rounded-md px-2 py-0.5 text-[11px] leading-4",

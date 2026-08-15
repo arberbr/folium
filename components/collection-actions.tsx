@@ -2,8 +2,8 @@
 
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ControlButton } from "@/components/control-button";
 import { ShareCollectionButton } from "@/components/share-collection-button";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useServerAction } from "@/hooks/use-server-action";
 import { deleteCollectionAction, renameCollectionAction } from "@/lib/actions";
 import { collectionHref } from "@/lib/format";
 
@@ -34,7 +35,7 @@ export function CollectionActions({
   origin,
 }: CollectionActionsProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, run } = useServerAction();
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [title, setTitle] = useState(name);
@@ -62,16 +63,16 @@ export function CollectionActions({
             className="space-y-4"
             onSubmit={(event) => {
               event.preventDefault();
-              startTransition(async () => {
-                try {
-                  const result = await renameCollectionAction(collectionId, title);
+              run({
+                action: () => renameCollectionAction(collectionId, title),
+                success: "Collection renamed",
+                error: "Could not rename this collection",
+                refresh: false,
+                onSuccess: (result) => {
                   setRenameOpen(false);
-                  toast.success("Collection renamed");
                   router.push(collectionHref(result.slug));
                   router.refresh();
-                } catch {
-                  toast.error("Could not rename this collection");
-                }
+                },
               });
             }}
           >
@@ -104,46 +105,29 @@ export function CollectionActions({
         origin={origin}
       />
 
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogTrigger asChild>
-          <ControlButton variant="destructive">Delete</ControlButton>
-        </DialogTrigger>
-        <DialogContent showCloseButton={false} className="sm:max-w-md">
-          <DialogHeader className="flex-row items-center gap-3">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
-              <Trash2 className="size-4" />
-            </span>
-            <DialogTitle>Delete this collection?</DialogTitle>
-          </DialogHeader>
-          <DialogDescription>
-            “{name}” will be removed. Papers stay in your library.
-          </DialogDescription>
-          <DialogFooter>
-            <ControlButton type="button" variant="outline" onClick={() => setDeleteOpen(false)}>
-              Cancel
-            </ControlButton>
-            <ControlButton
-              variant="destructive"
-              disabled={pending}
-              onClick={() => {
-                startTransition(async () => {
-                  try {
-                    await deleteCollectionAction(collectionId);
-                    setDeleteOpen(false);
-                    toast.success("Collection deleted");
-                    router.push("/collections");
-                    router.refresh();
-                  } catch {
-                    toast.error("Could not delete this collection");
-                  }
-                });
-              }}
-            >
-              Delete
-            </ControlButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        trigger={<ControlButton variant="destructive">Delete</ControlButton>}
+        icon={<Trash2 className="size-4" />}
+        title="Delete this collection?"
+        description={`“${name}” will be removed. Papers stay in your library.`}
+        confirmLabel="Delete"
+        pending={pending}
+        onConfirm={() => {
+          run({
+            action: () => deleteCollectionAction(collectionId),
+            success: "Collection deleted",
+            error: "Could not delete this collection",
+            refresh: false,
+            onSuccess: () => {
+              setDeleteOpen(false);
+              router.push("/collections");
+              router.refresh();
+            },
+          });
+        }}
+      />
     </div>
   );
 }

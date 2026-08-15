@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { isArxivId, normalizeArxivId } from "./ids";
 import { toPlainText } from "./latex";
 import { parseArxivFeed } from "./parse";
@@ -5,7 +6,7 @@ import type { ArxivPaper, ArxivSearchParams, ArxivSearchResult } from "./types";
 
 const ARXIV_API = "https://export.arxiv.org/api/query";
 const USER_AGENT =
-  process.env.ARXIV_USER_AGENT ?? "arXivDesk/1.0 (https://github.com; arXiv research reading desk)";
+  env.ARXIV_USER_AGENT ?? "arXivDesk/1.0 (https://github.com; arXiv research reading desk)";
 
 function buildSearchQuery(params: ArxivSearchParams) {
   const clauses: string[] = [];

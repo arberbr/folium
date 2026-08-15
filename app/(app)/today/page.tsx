@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
-import Link from "next/link";
-import { ControlButton } from "@/components/control-button";
+import { OffsetPager } from "@/components/offset-pager";
+import { PageHeader } from "@/components/page-header";
 import { PaperCard } from "@/components/paper-card";
 import { searchArxiv } from "@/lib/arxiv/client";
 import type { ArxivSearchResult } from "@/lib/arxiv/types";
@@ -32,15 +32,9 @@ export default async function TodayPage({
     fetchError = true;
   }
 
-  const nextStart = start + result.maxResults;
-  const prevStart = Math.max(0, start - PAGE_SIZE);
-  const hasNext = result.papers.length >= PAGE_SIZE && nextStart < result.total;
-
   return (
     <div className="space-y-8">
-      <header className="space-y-4">
-        <h1 className="font-heading text-4xl sm:text-5xl">Today</h1>
-      </header>
+      <PageHeader title="Today" />
 
       {fetchError ? (
         <p className="text-sm text-muted-foreground">No preprints came back. Try again in a bit.</p>
@@ -52,14 +46,13 @@ export default async function TodayPage({
             ))}
           </section>
 
-          <div className="flex items-center justify-between">
-            <ControlButton variant="outline" size="lg" asChild disabled={start === 0}>
-              <Link href={start === 0 ? "/today" : `/today?start=${prevStart}`}>Previous</Link>
-            </ControlButton>
-            <ControlButton variant="outline" size="lg" asChild disabled={!hasNext}>
-              <Link href={hasNext ? `/today?start=${nextStart}` : "/today"}>Next</Link>
-            </ControlButton>
-          </div>
+          <OffsetPager
+            hrefFor={(next) => (next === 0 ? "/today" : `/today?start=${next}`)}
+            start={start}
+            pageSize={PAGE_SIZE}
+            itemCount={result.papers.length}
+            total={result.total}
+          />
         </>
       )}
     </div>

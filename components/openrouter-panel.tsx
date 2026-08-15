@@ -1,11 +1,12 @@
 "use client";
 
 import { CheckCircle2, ExternalLink } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ControlButton } from "@/components/control-button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useServerAction } from "@/hooks/use-server-action";
 import {
   disconnectOpenRouterAction,
   getOpenRouterConnectionAction,
@@ -22,7 +23,8 @@ export function OpenRouterPanel() {
   const [connection, setConnection] = useState<OpenRouterConnection | null>(null);
   const [key, setKey] = useState("");
   const [editing, setEditing] = useState(false);
-  const [pending, startTransition] = useTransition();
+  const [pendingConnect, setPendingConnect] = useState(false);
+  const { pending, run } = useServerAction();
 
   // Clerk mounts custom pages inside its own portal, so there is no server render to
   // seed from — read the connection once the panel is on screen.
@@ -41,27 +43,32 @@ export function OpenRouterPanel() {
   }, []);
 
   function connect() {
-    startTransition(async () => {
-      const result = await saveOpenRouterKeyAction(key);
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      setConnection(result.connection);
-      setKey("");
-      setEditing(false);
-      toast.success("OpenRouter connected — analyses now run on your key.");
-    });
+    setPendingConnect(true);
+    void saveOpenRouterKeyAction(key)
+      .then((result) => {
+        if (!result.ok) {
+          toast.error(result.error);
+          return;
+        }
+        setConnection(result.connection);
+        setKey("");
+        setEditing(false);
+        toast.success("OpenRouter connected — analyses now run on your key.");
+      })
+      .catch(() => {
+        toast.error("Could not save that key");
+      })
+      .finally(() => {
+        setPendingConnect(false);
+      });
   }
 
   function disconnect() {
-    startTransition(async () => {
-      try {
-        setConnection(await disconnectOpenRouterAction());
-        toast.success("OpenRouter disconnected.");
-      } catch {
-        toast.error("Could not remove that key");
-      }
+    run({
+      action: () => disconnectOpenRouterAction(),
+      success: "OpenRouter disconnected.",
+      error: "Could not remove that key",
+      onSuccess: (result) => setConnection(result),
     });
   }
 
@@ -114,14 +121,14 @@ export function OpenRouterPanel() {
               aria-label="OpenRouter API key"
             />
             <div className="flex flex-wrap gap-2">
-              <ControlButton type="submit" disabled={pending || !key.trim()}>
-                {pending ? "Verifying…" : "Connect"}
+              <ControlButton type="submit" disabled={pendingConnect || !key.trim()}>
+                {pendingConnect ? "Verifying…" : "Connect"}
               </ControlButton>
               {connection.connected ? (
                 <ControlButton
                   type="button"
                   variant="ghost"
-                  disabled={pending}
+                  disabled={pendingConnect}
                   onClick={() => {
                     setEditing(false);
                     setKey("");

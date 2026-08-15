@@ -1,8 +1,7 @@
 "use client";
 
 import { Check, Copy, Globe } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { type ReactNode, useState, useTransition } from "react";
+import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { ControlButton } from "@/components/control-button";
 import {
@@ -15,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useServerAction } from "@/hooks/use-server-action";
 import { publishCollectionAction, unpublishCollectionAction } from "@/lib/actions";
 import { shareHref } from "@/lib/format";
 
@@ -34,9 +34,8 @@ export function ShareCollectionButton({
   shareToken: string | null;
   origin: string;
 }) {
-  const router = useRouter();
+  const { pending, run } = useServerAction();
   const [open, setOpen] = useState(false);
-  const [pending, startTransition] = useTransition();
   const [token, setToken] = useState(shareToken);
   const [copied, setCopied] = useState(false);
 
@@ -102,16 +101,14 @@ export function ShareCollectionButton({
             variant="destructive"
             disabled={pending}
             onClick={() => {
-              startTransition(async () => {
-                try {
-                  await unpublishCollectionAction(collectionId);
+              run({
+                action: () => unpublishCollectionAction(collectionId),
+                success: "Collection is private again",
+                error: "Could not make this collection private",
+                onSuccess: () => {
                   setToken(null);
                   setOpen(false);
-                  toast.success("Collection is private again");
-                  router.refresh();
-                } catch {
-                  toast.error("Could not make this collection private");
-                }
+                },
               });
             }}
           >
@@ -140,15 +137,13 @@ export function ShareCollectionButton({
           <ControlButton
             disabled={pending}
             onClick={() => {
-              startTransition(async () => {
-                try {
-                  const result = await publishCollectionAction(collectionId);
+              run({
+                action: () => publishCollectionAction(collectionId),
+                success: "Collection is public",
+                error: "Could not make this collection public",
+                onSuccess: (result) => {
                   setToken(result.token);
-                  toast.success("Collection is public");
-                  router.refresh();
-                } catch {
-                  toast.error("Could not make this collection public");
-                }
+                },
               });
             }}
           >

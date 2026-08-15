@@ -15,7 +15,6 @@ export type ReadingStatus = (typeof readingStatuses)[number];
 export const profiles = sqliteTable("profiles", {
   userId: text("user_id").primaryKey(),
   interests: text("interests", { mode: "json" }).$type<string[]>().notNull(),
-  digestFrequency: text("digest_frequency").notNull().default("daily"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
 });
@@ -27,7 +26,6 @@ export const libraryItems = sqliteTable(
     userId: text("user_id").notNull(),
     arxivId: text("arxiv_id").notNull(),
     status: text("status").$type<ReadingStatus>().notNull().default("queued"),
-    notes: text("notes").notNull().default(""),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
   },

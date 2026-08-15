@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import {
   convertToModelMessages,
   createTextStreamResponse,
@@ -12,22 +11,26 @@ import {
 import { paperContext } from "@/lib/ai/briefing";
 import { NO_MODEL_MESSAGE, resolveModel } from "@/lib/ai/models";
 import { briefingSchema } from "@/lib/ai/schema";
+import { requireUserId } from "@/lib/auth";
 import { getCachedPaper, saveBriefing } from "@/lib/data/papers";
-
-async function requireUser() {
-  const { userId } = await auth.protect();
-  return userId;
-}
+import { analyzeBodySchema, chatBodySchema, parseJsonBody } from "@/lib/validations";
 
 export async function POST_ANALYZE(req: Request) {
-  const userId = await requireUser();
+  const userId = await requireUserId();
 
-  const body = (await req.json()) as { arxivId?: string };
-  if (!body.arxivId) {
-    return Response.json({ error: "Missing arxivId" }, { status: 400 });
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const paper = await getCachedPaper(body.arxivId);
+  const body = parseJsonBody(analyzeBodySchema, raw);
+  if (!body.ok) {
+    return Response.json({ error: body.error }, { status: 400 });
+  }
+
+  const paper = await getCachedPaper(body.data.arxivId);
   if (!paper) {
     return Response.json({ error: "Paper not found" }, { status: 404 });
   }
@@ -45,11 +48,13 @@ export async function POST_ANALYZE(req: Request) {
     prompt: `Write a briefing for this arXiv paper.\n\n${paperContext(paper)}`,
   });
 
-  void result.output.then(async (output) => {
-    if (output) {
-      await saveBriefing(paper.id, output, briefingModel.id);
-    }
-  });
+  void Promise.resolve(result.output)
+    .then(async (output) => {
+      if (output) await saveBriefing(paper.id, output, briefingModel.id);
+    })
+    .catch(() => {
+      // Stream already left the process; a persist failure must not become an unhandled rejection.
+    });
 
   return createTextStreamResponse({
     stream: toTextStream({ stream: result.stream }),
@@ -57,15 +62,21 @@ export async function POST_ANALYZE(req: Request) {
 }
 
 export async function POST_CHAT(req: Request) {
-  const userId = await requireUser();
+  const userId = await requireUserId();
 
-  const { messages, arxivId }: { messages: UIMessage[]; arxivId?: string } = await req.json();
-
-  if (!arxivId) {
-    return Response.json({ error: "Missing arxivId" }, { status: 400 });
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const paper = await getCachedPaper(arxivId);
+  const body = parseJsonBody(chatBodySchema, raw);
+  if (!body.ok) {
+    return Response.json({ error: body.error }, { status: 400 });
+  }
+
+  const paper = await getCachedPaper(body.data.arxivId);
   if (!paper) {
     return Response.json({ error: "Paper not found" }, { status: 404 });
   }
@@ -80,7 +91,7 @@ export async function POST_CHAT(req: Request) {
     system: `You are arXivDesk, an evidence-bound reading partner. Answer only from this paper's title, authors, categories, and abstract. If the abstract does not contain the answer, say so and suggest what the PDF would need to show. Quote short phrases when helpful.
 
 ${paperContext(paper)}`,
-    messages: await convertToModelMessages(messages),
+    messages: await convertToModelMessages(body.data.messages as UIMessage[]),
   });
 
   return createUIMessageStreamResponse({

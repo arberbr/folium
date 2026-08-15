@@ -1,8 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { ControlButton } from "@/components/control-button";
 import {
   Dialog,
@@ -15,10 +14,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useServerAction } from "@/hooks/use-server-action";
 
 export function CreateShelfForm({ action }: { action: (name: string) => Promise<void> }) {
   const [open, setOpen] = useState(false);
-  const [pending, startTransition] = useTransition();
+  const { pending, run } = useServerAction();
   const [name, setName] = useState("");
   const filled = name.trim().length > 0;
 
@@ -54,15 +54,14 @@ export function CreateShelfForm({ action }: { action: (name: string) => Promise<
             event.preventDefault();
             const trimmed = name.trim();
             if (!trimmed) return;
-            startTransition(async () => {
-              try {
-                await action(trimmed);
+            run({
+              action: () => action(trimmed),
+              success: `Created “${trimmed}”`,
+              error: "Could not create this collection",
+              onSuccess: () => {
                 setOpen(false);
                 setName("");
-                toast.success(`Created “${trimmed}”`);
-              } catch {
-                toast.error("Could not create this collection");
-              }
+              },
             });
           }}
         >

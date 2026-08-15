@@ -4,6 +4,8 @@ import { analyses, paperCache } from "@/lib/db/schema";
 import { getPaper, getPapersByIds } from "@/lib/arxiv/client";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import type { PaperBriefing } from "@/lib/ai/schema";
+import { isFreshCache } from "@/lib/data/cache";
+import { normalizeArxivId } from "@/lib/arxiv/ids";
 
 export async function cachePaper(paper: ArxivPaper) {
   await ensureSchema();
@@ -25,16 +27,20 @@ export async function getCachedPaper(id: string): Promise<ArxivPaper | null> {
   const row = await db.query.paperCache.findFirst({
     where: eq(paperCache.arxivId, id),
   });
-  if (row) return row.payload;
+  if (row && isFreshCache(row.fetchedAt)) return row.payload;
 
-  const paper = await getPaper(id);
-  if (paper) await cachePaper(paper);
-  return paper;
+  try {
+    const paper = await getPaper(id);
+    if (paper) await cachePaper(paper);
+    return paper ?? row?.payload ?? null;
+  } catch {
+    return row?.payload ?? null;
+  }
 }
 
 export async function getCachedPapersByIds(ids: string[]): Promise<ArxivPaper[]> {
   await ensureSchema();
-  const unique = [...new Set(ids.filter(Boolean))];
+  const unique = [...new Set(ids.filter(Boolean).map(normalizeArxivId))];
   if (!unique.length) return [];
 
   const rows = await db.query.paperCache.findMany({
@@ -48,13 +54,25 @@ export async function getCachedPapersByIds(ids: string[]): Promise<ArxivPaper[]>
 
 /**
  * arXiv rate-limits hard and 503s under load. For pages whose paper list comes
- * from our own database, a stale local copy beats a 500.
+ * from our own database, a stale local copy beats a 500. Live hits are written
+ * through so the next outage has something to fall back to.
  */
 export async function papersByIdsWithFallback(ids: string[]): Promise<ArxivPaper[]> {
+  const unique = [...new Set(ids.filter(Boolean).map(normalizeArxivId))];
+  if (!unique.length) return [];
+
   try {
-    return await getPapersByIds(ids);
+    const papers = await getPapersByIds(unique);
+    await Promise.all(papers.map((paper) => cachePaper(paper)));
+
+    const found = new Set(papers.map((paper) => paper.id));
+    const missing = unique.filter((id) => !found.has(id) && !found.has(id.replace(/v\d+$/, "")));
+    if (!missing.length) return papers;
+
+    const cached = await getCachedPapersByIds(missing);
+    return [...papers, ...cached];
   } catch {
-    return getCachedPapersByIds(ids);
+    return getCachedPapersByIds(unique);
   }
 }
 

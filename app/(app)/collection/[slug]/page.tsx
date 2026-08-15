@@ -6,13 +6,14 @@ import { ControlButton } from "@/components/control-button";
 import { PaperCard } from "@/components/paper-card";
 import { papersByIdsWithFallback } from "@/lib/data/papers";
 import { getCollectionBySlug } from "@/lib/data/user";
+import { originFromForwarded } from "@/lib/http/origin";
 
 async function requestOrigin() {
   const headerList = await headers();
-  const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
-  if (!host) return "";
-  const protocol = headerList.get("x-forwarded-proto") ?? "http";
-  return `${protocol}://${host}`;
+  return originFromForwarded({
+    host: headerList.get("x-forwarded-host") ?? headerList.get("host"),
+    protocol: headerList.get("x-forwarded-proto"),
+  });
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -47,6 +48,8 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
     requestOrigin(),
   ]);
 
+  const missing = collection.paperIds.length - papers.length;
+
   return (
     <div className="space-y-8">
       <header className="space-y-4">
@@ -60,24 +63,32 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
           />
         </div>
         <p className="text-sm text-muted-foreground">
-          {papers.length} paper{papers.length === 1 ? "" : "s"}
+          {collection.paperIds.length} paper{collection.paperIds.length === 1 ? "" : "s"}
         </p>
       </header>
 
-      {papers.length === 0 ? (
+      {collection.paperIds.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No papers in this collection yet. Open a paper and add it here.
         </p>
       ) : (
-        <section className="grid gap-5 md:grid-cols-2">
-          {papers.map((paper) => (
-            <PaperCard
-              key={paper.id}
-              paper={paper}
-              collection={{ id: collection.id, name: collection.name }}
-            />
-          ))}
-        </section>
+        <>
+          {missing > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {missing} paper{missing === 1 ? "" : "s"} in this collection could not be loaded from
+              arXiv right now.
+            </p>
+          ) : null}
+          <section className="grid gap-5 md:grid-cols-2">
+            {papers.map((paper) => (
+              <PaperCard
+                key={paper.id}
+                paper={paper}
+                collection={{ id: collection.id, name: collection.name }}
+              />
+            ))}
+          </section>
+        </>
       )}
     </div>
   );

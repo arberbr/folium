@@ -1,17 +1,17 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 import { ControlButton } from "@/components/control-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { useServerAction } from "@/hooks/use-server-action";
 import { saveInterestsAction } from "@/lib/actions";
 import { CATEGORY_GROUPS, type CategoryGroup } from "@/lib/arxiv/categories";
 
 export function InterestsForm({ initial }: { initial: string[] }) {
   const [selected, setSelected] = useState<string[]>(initial);
   const [query, setQuery] = useState("");
-  const [pending, startTransition] = useTransition();
+  const { pending, run } = useServerAction();
 
   const groups = useMemo(() => filterGroups(CATEGORY_GROUPS, query), [query]);
 
@@ -20,13 +20,10 @@ export function InterestsForm({ initial }: { initial: string[] }) {
       className="space-y-8"
       onSubmit={(event) => {
         event.preventDefault();
-        startTransition(async () => {
-          try {
-            await saveInterestsAction(selected);
-            toast.success("Interests updated — Tomorrow’s drop will follow.");
-          } catch {
-            toast.error("Could not save interests");
-          }
+        run({
+          action: () => saveInterestsAction(selected),
+          success: "Interests updated — Tomorrow’s drop will follow.",
+          error: "Could not save interests",
         });
       }}
     >
@@ -73,9 +70,11 @@ export function InterestsForm({ initial }: { initial: string[] }) {
                   return (
                     <label
                       key={category.id}
+                      htmlFor={`interest-${category.id}`}
                       className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/80 bg-card/40 px-4 py-3"
                     >
                       <Checkbox
+                        id={`interest-${category.id}`}
                         checked={checked}
                         onCheckedChange={(value) => {
                           setSelected((current) =>

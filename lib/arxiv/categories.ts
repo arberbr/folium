@@ -13,22 +13,22 @@ function cats(...entries: [id: string, label: string][]): Category[] {
   return entries.map(([id, label]) => ({ id, label }));
 }
 
-export const FEATURED_CATEGORIES: Category[] = cats(
-  ["cs.AI", "Artificial Intelligence"],
-  ["cs.LG", "Machine Learning"],
-  ["cs.CL", "Computation and Language"],
-  ["cs.CV", "Computer Vision"],
-  ["cs.NE", "Neural and Evolutionary Computing"],
-  ["cs.RO", "Robotics"],
-  ["cs.IR", "Information Retrieval"],
-  ["cs.HC", "Human-Computer Interaction"],
-  ["cs.CR", "Cryptography and Security"],
-  ["cs.DS", "Data Structures and Algorithms"],
-  ["cs.SE", "Software Engineering"],
-  ["cs.DC", "Distributed Computing"],
-  ["cs.PL", "Programming Languages"],
-  ["cs.SY", "Systems and Control"],
-);
+export const FEATURED_IDS = [
+  "cs.AI",
+  "cs.LG",
+  "cs.CL",
+  "cs.CV",
+  "cs.NE",
+  "cs.RO",
+  "cs.IR",
+  "cs.HC",
+  "cs.CR",
+  "cs.DS",
+  "cs.SE",
+  "cs.DC",
+  "cs.PL",
+  "cs.SY",
+] as const;
 
 export const CATEGORY_GROUPS: CategoryGroup[] = [
   {
@@ -282,6 +282,11 @@ export const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 export const DEFAULT_INTERESTS = ["cs.AI", "cs.LG", "cs.CL", "cs.CV"];
+
+export const FEATURED_CATEGORIES: Category[] = FEATURED_IDS.map((id) => ({
+  id,
+  label: CATEGORY_LABEL[id] ?? id,
+}));
 
 export function categoryLabel(id: string) {
   return CATEGORY_LABEL[id] ?? id;

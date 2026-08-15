@@ -1,8 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
-import { toast } from "sonner";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useServerAction } from "@/hooks/use-server-action";
 import { updatePaperStatusAction } from "@/lib/actions";
 import type { ReadingStatus } from "@/lib/db/schema";
 
@@ -20,7 +19,7 @@ export function StatusToggle({
   arxivId: string;
   status: ReadingStatus | null;
 }) {
-  const [pending, startTransition] = useTransition();
+  const { pending, run } = useServerAction();
 
   return (
     <ToggleGroup
@@ -28,14 +27,11 @@ export function StatusToggle({
       value={status ?? ""}
       onValueChange={(value) => {
         if (!value) return;
-        startTransition(async () => {
-          try {
-            await updatePaperStatusAction(arxivId, value as ReadingStatus);
-            const option = OPTIONS.find((item) => item.value === value);
-            toast.success(option ? `Marked as ${option.label}` : "Status updated");
-          } catch {
-            toast.error("Could not update status");
-          }
+        const option = OPTIONS.find((item) => item.value === value);
+        run({
+          action: () => updatePaperStatusAction(arxivId, value),
+          success: option ? `Marked as ${option.label}` : "Status updated",
+          error: "Could not update status",
         });
       }}
       variant="outline"

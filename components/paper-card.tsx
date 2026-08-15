@@ -27,23 +27,6 @@ function statusLabel(status: ReadingStatus) {
   }
 }
 
-function statusChipClass(status: ReadingStatus) {
-  switch (status) {
-    case "queued":
-      return "border-amber-500/40 bg-amber-500/12 text-amber-800 before:bg-amber-500 hover:border-amber-500/55 hover:bg-amber-500/18 dark:text-amber-200";
-    case "reading":
-      return "border-sky-500/40 bg-sky-500/12 text-sky-800 before:bg-sky-500 hover:border-sky-500/55 hover:bg-sky-500/18 dark:text-sky-200";
-    case "done":
-      return "border-emerald-500/40 bg-emerald-500/12 text-emerald-800 before:bg-emerald-500 hover:border-emerald-500/55 hover:bg-emerald-500/18 dark:text-emerald-200";
-    case "skipped":
-      return "border-rose-400/40 bg-rose-400/12 text-rose-800 before:bg-rose-400 hover:border-rose-400/55 hover:bg-rose-400/18 dark:text-rose-300";
-    default: {
-      const _exhaustive: never = status;
-      return _exhaustive;
-    }
-  }
-}
-
 export function PaperCard({
   paper,
   className,
@@ -59,23 +42,20 @@ export function PaperCard({
   removable?: boolean;
   collection?: { id: string; name: string };
 }) {
+  const href = paperHref(paper.id);
+
   return (
     <Card
       className={cn(
-        "relative h-full bg-card/80 transition-transform duration-300 hover:-translate-y-0.5 hover:ring-primary/40",
+        "h-full bg-card/80 transition-transform duration-300 hover:-translate-y-0.5 hover:ring-primary/40",
         className,
       )}
     >
-      <Link
-        href={paperHref(paper.id)}
-        className="absolute inset-0 z-0 rounded-[inherit]"
-        aria-label={toPlainText(paper.title)}
-      />
-      <CardContent className="pointer-events-none relative z-10 flex h-full flex-col gap-3 px-5">
+      <CardContent className="flex h-full flex-col gap-3 px-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <span className="font-mono text-[11px] tracking-wide text-primary">{paper.id}</span>
-            {status ? <Chip className={statusChipClass(status)}>{statusLabel(status)}</Chip> : null}
+            {status ? <Chip variant={status}>{statusLabel(status)}</Chip> : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <span className="text-[11px] text-muted-foreground">
@@ -98,7 +78,12 @@ export function PaperCard({
             compact ? "text-lg leading-snug" : "text-xl leading-snug",
           )}
         >
-          <Latex>{paper.title}</Latex>
+          <Link
+            href={href}
+            className="rounded-sm hover:underline focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:outline-none"
+          >
+            <Latex>{paper.title}</Latex>
+          </Link>
         </h3>
         <p className="text-sm text-muted-foreground">{formatAuthors(paper.authors)}</p>
         {!compact ? (
@@ -108,7 +93,11 @@ export function PaperCard({
         ) : null}
         <ChipGroup className="mt-auto pt-2">
           {paper.categories.slice(0, 3).map((category) => (
-            <Chip key={category}>{categoryLabel(category)}</Chip>
+            <Chip key={category} asChild>
+              <Link href={`/explore?cat=${encodeURIComponent(category)}`}>
+                {categoryLabel(category)}
+              </Link>
+            </Chip>
           ))}
         </ChipGroup>
       </CardContent>

@@ -38,11 +38,6 @@
       },
       "security": {
         "noDangerouslySetInnerHtml": "off"
-      },
-      "a11y": {
-        "noLabelWithoutControl": "off",
-        "useSemanticElements": "off",
-        "useKeyWithClickEvents": "off"
       }
     },
     "domains": {
@@ -50,6 +45,19 @@
       "react": "recommended"
     }
   },
+  "overrides": [
+    {
+      "includes": ["components/ui/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "useKeyWithClickEvents": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double",

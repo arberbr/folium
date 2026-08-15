@@ -23,6 +23,14 @@ export function slugify(value: string) {
   return slug || "collection";
 }
 
+export function uniqueSlug(name: string, taken: Set<string>) {
+  const base = slugify(name);
+  if (!taken.has(base)) return base;
+  let n = 2;
+  while (taken.has(`${base}-${n}`)) n += 1;
+  return `${base}-${n}`;
+}
+
 export function formatAuthors(names: { name: string }[], limit = 3) {
   if (!names.length) return "Unknown authors";
   if (names.length <= limit) {

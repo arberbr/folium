@@ -1,13 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
-import Link from "next/link";
 import { CategoryPills } from "@/components/category-pills";
-import { ControlButton } from "@/components/control-button";
+import { OffsetPager } from "@/components/offset-pager";
 import { PaperCard } from "@/components/paper-card";
 import { SearchBar } from "@/components/search-bar";
 import { categoryLabel, FEATURED_CATEGORIES } from "@/lib/arxiv/categories";
 import { searchArxiv } from "@/lib/arxiv/client";
 import type { ArxivSearchResult } from "@/lib/arxiv/types";
 import { getOrCreateProfile } from "@/lib/data/user";
+
+const PAGE_SIZE = 20;
 
 export default async function ExplorePage({
   searchParams,
@@ -24,7 +25,7 @@ export default async function ExplorePage({
   const interests = profile?.interests.length
     ? profile.interests
     : FEATURED_CATEGORIES.map((item) => item.id);
-  let result: ArxivSearchResult = { papers: [], total: 0, start, maxResults: 20 };
+  let result: ArxivSearchResult = { papers: [], total: 0, start, maxResults: PAGE_SIZE };
   let fetchError = false;
   try {
     result = await searchArxiv({
@@ -32,16 +33,24 @@ export default async function ExplorePage({
       category: category || undefined,
       categories: !category && !query ? interests : undefined,
       start,
-      maxResults: 20,
+      maxResults: PAGE_SIZE,
       sortBy: query ? "relevance" : "submittedDate",
     });
   } catch {
     fetchError = true;
   }
 
-  const nextStart = start + result.maxResults;
-  const prevStart = Math.max(0, start - 20);
   const title = query ? `Results for “${query}”` : category ? categoryLabel(category) : "Explore";
+
+  function hrefFor(nextStart: number) {
+    const search = new URLSearchParams({
+      ...(query ? { q: query } : {}),
+      ...(category ? { cat: category } : {}),
+      ...(nextStart ? { start: String(nextStart) } : {}),
+    });
+    const qs = search.toString();
+    return qs ? `/explore?${qs}` : "/explore";
+  }
 
   return (
     <div className="space-y-8">
@@ -62,30 +71,13 @@ export default async function ExplorePage({
         ))}
       </section>
 
-      <div className="flex items-center justify-between">
-        <ControlButton variant="outline" size="lg" asChild disabled={start === 0}>
-          <Link
-            href={`/explore?${new URLSearchParams({
-              ...(query ? { q: query } : {}),
-              ...(category ? { cat: category } : {}),
-              start: String(prevStart),
-            }).toString()}`}
-          >
-            Previous
-          </Link>
-        </ControlButton>
-        <ControlButton variant="outline" size="lg" asChild>
-          <Link
-            href={`/explore?${new URLSearchParams({
-              ...(query ? { q: query } : {}),
-              ...(category ? { cat: category } : {}),
-              start: String(nextStart),
-            }).toString()}`}
-          >
-            Next
-          </Link>
-        </ControlButton>
-      </div>
+      <OffsetPager
+        hrefFor={hrefFor}
+        start={start}
+        pageSize={PAGE_SIZE}
+        itemCount={result.papers.length}
+        total={result.total}
+      />
     </div>
   );
 }

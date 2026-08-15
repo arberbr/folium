@@ -1,8 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { ControlButton } from "@/components/control-button";
 import {
   DropdownMenu,
@@ -10,6 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useServerAction } from "@/hooks/use-server-action";
 import { addToShelfAction, removeFromShelfAction } from "@/lib/actions";
 
 export function AddToShelf({
@@ -19,8 +18,7 @@ export function AddToShelf({
   arxivId: string;
   shelves: { id: string; name: string; paperIds: string[] }[];
 }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { pending, run } = useServerAction();
   const [membership, setMembership] = useState(
     () =>
       new Set(shelves.filter((shelf) => shelf.paperIds.includes(arxivId)).map((shelf) => shelf.id)),
@@ -51,29 +49,23 @@ export function AddToShelf({
                   else updated.delete(shelf.id);
                   return updated;
                 });
-                startTransition(async () => {
-                  try {
-                    if (shouldAdd) {
-                      await addToShelfAction(shelf.id, arxivId);
-                      toast.success(`Added to ${shelf.name}`);
-                    } else {
-                      await removeFromShelfAction(shelf.id, arxivId);
-                      toast.success(`Removed from ${shelf.name}`);
-                    }
-                    router.refresh();
-                  } catch {
+                run({
+                  action: () =>
+                    shouldAdd
+                      ? addToShelfAction(shelf.id, arxivId)
+                      : removeFromShelfAction(shelf.id, arxivId),
+                  success: shouldAdd ? `Added to ${shelf.name}` : `Removed from ${shelf.name}`,
+                  error: shouldAdd
+                    ? "Could not add to that collection"
+                    : "Could not remove from that collection",
+                  onError: () => {
                     setMembership((current) => {
                       const updated = new Set(current);
                       if (shouldAdd) updated.delete(shelf.id);
                       else updated.add(shelf.id);
                       return updated;
                     });
-                    toast.error(
-                      shouldAdd
-                        ? "Could not add to that collection"
-                        : "Could not remove from that collection",
-                    );
-                  }
+                  },
                 });
               }}
             >

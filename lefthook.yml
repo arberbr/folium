@@ -6,3 +6,6 @@ pre-commit:
       stage_fixed: true
     - name: typecheck
       run: pnpm typecheck
+    - name: test
+      glob: "*.{js,ts,cjs,mjs,cts,mts,jsx,tsx}"
+      run: pnpm test

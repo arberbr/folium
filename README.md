@@ -1,6 +1,6 @@
 # arXivDesk
 
-A private desk for [arXiv](https://arxiv.org). arXivDesk turns the daily preprint flood into a workspace you can actually work at: a personalized drop, structured briefings, collections, and notes — all in one Next.js app.
+A private desk for [arXiv](https://arxiv.org). arXivDesk turns the daily preprint flood into a workspace you can actually work at: a personalized drop, structured briefings, and collections — all in one Next.js app.
 
 ## What it does
 
@@ -8,7 +8,7 @@ A private desk for [arXiv](https://arxiv.org). arXivDesk turns the daily preprin
 - **Explore** — search by claim, author, field, or raw arXiv id
 - **Paper briefing** — TL;DR, claims, methods, limitations, novelty, and who should read it
 - **Ask the abstract** — a chat grounded in the paper you have open
-- **Library** — queue / reading / done / skipped, private notes, named collections
+- **Library** — queue / reading / done / skipped, named collections
 
 Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.turso.tech/libsql) (swap in Turso for production). Language models are bring-your-own-key: each reader connects their own [OpenRouter](https://openrouter.ai) key under Account → Integrations, and it is stored privately against their Clerk user.
 
