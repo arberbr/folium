@@ -4,9 +4,6 @@ import { isArxivId, normalizeArxivId } from "@/lib/arxiv/ids";
 import { readingStatuses } from "@/lib/db/schema";
 import { ActionError } from "@/lib/errors";
 
-export const CHAT_MAX_MESSAGES = 20;
-export const CHAT_MAX_BODY_CHARS = 50_000;
-
 export const arxivIdSchema = z
   .string()
   .trim()
@@ -42,34 +39,6 @@ export const openRouterKeySchema = z
     `OpenRouter keys start with “${OPENROUTER_KEY_PREFIX}”.`,
   );
 
-export const uiMessageSchema = z.object({
-  id: z.string().min(1),
-  role: z.enum(["system", "user", "assistant"]),
-  parts: z.array(z.looseObject({ type: z.string().min(1) })).min(1),
-});
-
-export const analyzeBodySchema = z.object({
-  arxivId: arxivIdSchema,
-});
-
-export const chatBodySchema = z
-  .object({
-    arxivId: arxivIdSchema,
-    messages: z.array(uiMessageSchema).max(CHAT_MAX_MESSAGES, "Too many chat messages"),
-  })
-  .superRefine((body, ctx) => {
-    const size = JSON.stringify(body.messages).length;
-    if (size > CHAT_MAX_BODY_CHARS) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Chat payload is too large",
-        path: ["messages"],
-      });
-    }
-  });
-
-export type ParseResult<T> = { ok: true; data: T } | { ok: false; error: string };
-
 export function parseWith<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);
   if (!result.success) {
@@ -77,13 +46,4 @@ export function parseWith<T>(schema: z.ZodType<T>, value: unknown): T {
     throw new ActionError(issue?.message ?? "Invalid input");
   }
   return result.data;
-}
-
-export function parseJsonBody<T>(schema: z.ZodType<T>, value: unknown): ParseResult<T> {
-  const result = schema.safeParse(value);
-  if (!result.success) {
-    const issue = result.error.issues[0];
-    return { ok: false, error: issue?.message ?? "Invalid request" };
-  }
-  return { ok: true, data: result.data };
 }

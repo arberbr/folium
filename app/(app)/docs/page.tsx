@@ -4,8 +4,7 @@ import { FolioShot } from "@/components/folio-shot";
 
 export const metadata = {
   title: "Docs",
-  description:
-    "How arXivDesk turns arXiv into a reading desk: Explore, Today, briefings, and collections.",
+  description: "How arXivDesk turns arXiv into a reading desk: Explore, Today, and collections.",
 };
 
 const TOC = [
@@ -41,17 +40,16 @@ export default function DocsPage() {
           <p className="text-xs tracking-[0.22em] text-primary uppercase">Field notes</p>
           <h1 className="font-heading text-4xl leading-tight sm:text-5xl">How arXivDesk works</h1>
           <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            arXiv publishes a flood. arXivDesk is the desk: a daily drop from the fields you follow,
-            a search that does not require an account, and a briefing that tells you whether the PDF
-            is worth the hour.
+            arXiv publishes a flood. arXivDesk is the desk: a daily drop from the fields you follow
+            and a search that does not require an account.
           </p>
         </header>
 
         <section id="reading-room" className="scroll-mt-24 space-y-5">
           <SectionHeading n="01" title="The reading room" />
           <p className="leading-relaxed text-pretty">
-            The front door is public. Sign in when you want a personalized Today drop, a library,
-            and live analysis. Until then you can still walk the stacks.
+            The front door is public. Sign in when you want a personalized Today drop and a
+            library. Until then you can still walk the stacks.
           </p>
           <FolioShot
             src="/folio/landing.png"
@@ -95,13 +93,12 @@ export default function DocsPage() {
           <SectionHeading n="04" title="Open a folio" />
           <p className="leading-relaxed text-pretty">
             Every paper page is public — shared collections can link straight through. You get the
-            abstract and neighbours in the stack. Saving, status, a briefing, and “ask the abstract”
-            wait for an account (and, for the AI, your own OpenRouter key).
+            abstract and neighbours in the stack. Saving and status wait for an account.
           </p>
           <FolioShot
             src="/folio/paper.png"
-            alt="Paper page for Attention Is All You Need, showing abstract, briefing panel, and ask-the-abstract chat."
-            caption="Press Analyze and arXivDesk extracts claims, methods, limitations, novelty, and who should actually read it. Nothing runs until you ask, because every run spends your own credits."
+            alt="Paper page for Attention Is All You Need, showing the abstract and related papers."
+            caption="Save it, set a status, or hand it to a collection — the abstract and neighbouring papers are always right there."
           />
         </section>
 
@@ -144,7 +141,8 @@ export default function DocsPage() {
         <section id="key" className="scroll-mt-24 space-y-5">
           <SectionHeading n="06" title="Bring your own key" />
           <p className="leading-relaxed text-pretty">
-            arXivDesk does not hold a model-provider key. Open your avatar → Integrations, paste an{" "}
+            arXivDesk does not hold a model-provider key. Open your avatar → Integrations and paste
+            an{" "}
             <a
               href="https://openrouter.ai/keys"
               className="text-primary underline-offset-4 hover:underline"
@@ -153,26 +151,9 @@ export default function DocsPage() {
             >
               OpenRouter
             </a>{" "}
-            key, and analyses run on your account. The AI routes stay behind sign-in on purpose: an
-            anonymous visitor cannot spend another reader’s credits.
+            key. It is stored privately against your account, ready for the model-powered features
+            arXivDesk adds next.
           </p>
-          <div className="rounded-2xl border border-border/80 bg-card/40 p-6">
-            <p className="text-xs tracking-[0.22em] text-primary uppercase">What the key unlocks</p>
-            <ul className="mt-4 space-y-3 text-sm leading-relaxed">
-              <li>
-                <span className="font-medium">Live briefing</span> — TL;DR, audience, claims,
-                methods, limitations, why it matters.
-              </li>
-              <li>
-                <span className="font-medium">Ask the abstract</span> — a chat grounded in the paper
-                you have open. If the PDF is required, arXivDesk will say so.
-              </li>
-              <li>
-                <span className="font-medium">Nothing runs on its own</span> — briefings and chat
-                spend your credits, so they start when you press the button, never on page load.
-              </li>
-            </ul>
-          </div>
         </section>
 
         <footer className="flex flex-wrap items-center gap-3 border-t border-border/60 pt-8">

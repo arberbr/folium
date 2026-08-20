@@ -31,13 +31,6 @@ function SampleCard({
         <Latex>{title}</Latex>
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">{authors}</p>
-      <div className="mt-6 space-y-2 text-sm">
-        <p className="text-xs tracking-[0.2em] text-primary uppercase">Briefing</p>
-        <p className="leading-relaxed">
-          arXivDesk will extract the claim, the method, the limitation, and the person who should
-          actually read this — before you open the PDF.
-        </p>
-      </div>
     </article>
   );
 }
@@ -83,7 +76,7 @@ export default async function LandingPage() {
           </h1>
           <p className="reveal reveal-delay-2 mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
             arXivDesk is your desk for arXiv: a daily drop from the fields you actually work in,
-            structured briefings instead of another abstract dump.
+            saved and organized in one place.
           </p>
           <div className="reveal reveal-delay-3 mt-8 flex justify-center">
             <Show when="signed-out">
