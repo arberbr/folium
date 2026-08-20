@@ -33,11 +33,6 @@ export default function PaperLoading() {
         <Skeleton className="h-4 w-5/6" />
       </section>
 
-      <div className="grid items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <Skeleton className="h-64 rounded-2xl" />
-        <Skeleton className="h-64 rounded-2xl" />
-      </div>
-
       <section className="space-y-4">
         <h2 className="font-heading text-3xl">Nearby in the stack</h2>
         <PaperGridSkeleton count={4} compact />

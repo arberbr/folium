@@ -1,11 +1,10 @@
-import { and, eq, inArray } from "drizzle-orm";
-import type { PaperBriefing } from "@/lib/ai/schema";
+import { eq, inArray } from "drizzle-orm";
 import { getPaper, getPapersByIds } from "@/lib/arxiv/client";
 import { normalizeArxivId } from "@/lib/arxiv/ids";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import { isFreshCache } from "@/lib/data/cache";
 import { db } from "@/lib/db";
-import { analyses, paperCache } from "@/lib/db/schema";
+import { paperCache } from "@/lib/db/schema";
 
 export async function cachePaper(paper: ArxivPaper) {
   await db
@@ -71,35 +70,4 @@ export async function papersByIdsWithFallback(ids: string[]): Promise<ArxivPaper
   } catch {
     return getCachedPapersByIds(unique);
   }
-}
-
-export async function getCachedBriefing(userId: string, arxivId: string, model: string) {
-  return db.query.analyses.findFirst({
-    where: and(
-      eq(analyses.userId, userId),
-      eq(analyses.arxivId, arxivId),
-      eq(analyses.model, model),
-    ),
-  });
-}
-
-export async function saveBriefing(
-  userId: string,
-  arxivId: string,
-  briefing: PaperBriefing,
-  model: string,
-) {
-  await db
-    .insert(analyses)
-    .values({
-      userId,
-      arxivId,
-      briefing,
-      model,
-      createdAt: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: [analyses.userId, analyses.arxivId, analyses.model],
-      set: { briefing, createdAt: new Date() },
-    });
 }

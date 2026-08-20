@@ -6,21 +6,18 @@ import { AddToShelf } from "@/components/add-to-shelf";
 import { Chip, ChipGroup } from "@/components/chip";
 import { ControlButton } from "@/components/control-button";
 import { Latex } from "@/components/latex";
-import { PaperBriefingPanel } from "@/components/paper-briefing";
 import { PaperCard } from "@/components/paper-card";
-import { PaperChat } from "@/components/paper-chat";
 import { PaperGrid } from "@/components/paper-grid";
 import { PaperGridSkeleton } from "@/components/paper-skeletons";
 import { SaveButton } from "@/components/save-button";
 import { SignInPrompt } from "@/components/sign-in-prompt";
 import { StatusToggle } from "@/components/status-toggle";
-import { hasAiAccess, MODELS } from "@/lib/ai/models";
 import { categoryLabel } from "@/lib/arxiv/categories";
 import { relatedPapers } from "@/lib/arxiv/client";
 import { arxivIdFromRoute } from "@/lib/arxiv/ids";
 import { toPlainText } from "@/lib/arxiv/latex";
 import type { ArxivPaper } from "@/lib/arxiv/types";
-import { getCachedBriefing, loadPaper } from "@/lib/data/papers";
+import { loadPaper } from "@/lib/data/papers";
 import { getCollections, getLibraryItem } from "@/lib/data/user";
 import { collectionHref, formatAuthors, formatExactDate } from "@/lib/format";
 
@@ -74,11 +71,9 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const [libraryItem, cached, shelves, aiAccess] = await Promise.all([
+  const [libraryItem, shelves] = await Promise.all([
     userId ? getLibraryItem(userId, paper.id) : Promise.resolve(undefined),
-    userId ? getCachedBriefing(userId, paper.id, MODELS.briefing) : Promise.resolve(undefined),
     userId ? getCollections(userId) : Promise.resolve([]),
-    hasAiAccess(userId),
   ]);
 
   const inCollections = shelves.filter((shelf) => shelf.paperIds.includes(paper.id));
@@ -148,16 +143,6 @@ export default async function PaperPage({ params }: { params: Promise<{ id: stri
           <Latex>{paper.summary}</Latex>
         </p>
       </section>
-
-      <div className="grid items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <PaperBriefingPanel
-          arxivId={paper.id}
-          initial={cached?.briefing ?? null}
-          canStream={aiAccess && signedIn}
-          signedIn={signedIn}
-        />
-        <PaperChat arxivId={paper.id} signedIn={signedIn} canChat={aiAccess && signedIn} />
-      </div>
 
       <section className="space-y-4">
         <h2 className="font-heading text-3xl">Nearby in the stack</h2>

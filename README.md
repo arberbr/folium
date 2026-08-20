@@ -1,16 +1,14 @@
 # arXivDesk
 
-A private desk for [arXiv](https://arxiv.org). arXivDesk turns the daily preprint flood into a workspace you can actually work at: a personalized drop, structured briefings, and collections — all in one Next.js app.
+A private desk for [arXiv](https://arxiv.org). arXivDesk turns the daily preprint flood into a workspace you can actually work at: a personalized drop and collections — all in one Next.js app.
 
 ## What it does
 
 - **Today** — a drop assembled from the arXiv categories you follow
 - **Explore** — search by claim, author, field, or raw arXiv id
-- **Paper briefing** — TL;DR, claims, methods, limitations, novelty, and who should read it
-- **Ask the abstract** — a chat grounded in the paper you have open
 - **Library** — queue / reading / done / skipped, named collections
 
-Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.turso.tech/libsql) (swap in Turso for production). Language models are bring-your-own-key: each reader connects their own [OpenRouter](https://openrouter.ai) key under Account → Integrations, and it is stored privately against their Clerk user.
+Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.turso.tech/libsql) (swap in Turso for production). Each reader can connect their own [OpenRouter](https://openrouter.ai) key under Account → Integrations — it is stored privately against their Clerk user, ready for the model-powered features arXivDesk adds next.
 
 ## Stack
 
@@ -19,7 +17,6 @@ Auth is [Clerk](https://clerk.com). The database is local [libSQL](https://docs.
 - TypeScript 7 + Biome + pnpm
 - Clerk v7
 - Drizzle ORM + libSQL
-- Vercel AI SDK 7 + `@openrouter/ai-sdk-provider`
 
 ## Setup
 

@@ -1,5 +1,4 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import type { PaperBriefing } from "@/lib/ai/schema";
 import type { ArxivPaper } from "@/lib/arxiv/types";
 import { PAPER_CACHE_TTL_MS } from "@/lib/data/cache";
 
@@ -16,7 +15,7 @@ vi.mock("@/lib/arxiv/client", () => ({
   getPapersByIds: vi.fn(),
 }));
 
-import { cachePaper, getCachedBriefing, loadPaper, saveBriefing } from "@/lib/data/papers";
+import { cachePaper, loadPaper } from "@/lib/data/papers";
 import { db, ready } from "@/lib/db";
 import { paperCache } from "@/lib/db/schema";
 
@@ -33,18 +32,6 @@ const paper: ArxivPaper = {
   pdfUrl: "https://arxiv.org/pdf/1706.03762.pdf",
   absUrl: "https://arxiv.org/abs/1706.03762",
   htmlUrl: "https://ar5iv.labs.arxiv.org/html/1706.03762",
-};
-
-const briefing: PaperBriefing = {
-  tldr: "The Transformer replaces recurrence with attention.",
-  audience: "NLP researchers.",
-  claims: ["Attention suffices for transduction.", "The model trains faster."],
-  methods: ["Multi-head attention", "Positional encodings"],
-  limitations: ["Abstract-only sketch."],
-  whyItMatters: "It is the template for later language models.",
-  relatedQuestions: ["What is the strongest BLEU gain?", "Which assumption would break it?"],
-  difficulty: "graduate",
-  novelty: 5,
 };
 
 beforeAll(async () => {
@@ -82,19 +69,5 @@ describe("loadPaper", () => {
 
     await expect(loadPaper(stale.id)).resolves.toEqual(stale);
     expect(getPaper).toHaveBeenCalled();
-  });
-});
-
-describe("briefing cache", () => {
-  it("does not leak one reader's briefing to another", async () => {
-    await saveBriefing("user-a", paper.id, briefing, "openai/gpt-5.5");
-
-    await expect(getCachedBriefing("user-b", paper.id, "openai/gpt-5.5")).resolves.toBeUndefined();
-    await expect(
-      getCachedBriefing("user-a", paper.id, "openai/gpt-5.4-mini"),
-    ).resolves.toBeUndefined();
-
-    const stored = await getCachedBriefing("user-a", paper.id, "openai/gpt-5.5");
-    expect(stored?.briefing.tldr).toBe(briefing.tldr);
   });
 });

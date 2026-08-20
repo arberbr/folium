@@ -44,7 +44,7 @@ export function OpenRouterPanel() {
   function connect() {
     run({
       action: () => saveOpenRouterKeyAction(key),
-      success: "OpenRouter connected — analyses now run on your key.",
+      success: "OpenRouter connected.",
       error: "Could not save that key",
       onSuccess: (result) => {
         setConnection(result);
@@ -70,9 +70,7 @@ export function OpenRouterPanel() {
       <header className="space-y-1">
         <h1 className="font-heading text-xl">Integrations</h1>
         <p className="text-sm text-muted-foreground">
-          arXivDesk runs every briefing and paper chat on your own model provider. Without a key
-          connected, papers still open — you just cannot generate a briefing or ask questions about
-          them.
+          Connect an OpenRouter key so it is ready for the model-powered features on your account.
         </p>
       </header>
 

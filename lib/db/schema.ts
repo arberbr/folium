@@ -6,8 +6,13 @@ import {
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
-import type { PaperBriefing } from "../ai/schema";
 import type { ArxivPaper } from "../arxiv/types";
+
+// Analysis (briefing/chat) features were removed from the app, but the analyses
+// table stays so a future feature can reuse the storage without a migration.
+// The shape it once held is preserved here as a plain type — lib/ai/schema.ts
+// (its Zod source) is gone along with the features that produced it.
+type StoredBriefing = Record<string, unknown>;
 
 export const readingStatuses = ["queued", "reading", "done", "skipped"] as const;
 export type ReadingStatus = (typeof readingStatuses)[number];
@@ -69,7 +74,7 @@ export const analyses = sqliteTable(
     userId: text("user_id").notNull(),
     arxivId: text("arxiv_id").notNull(),
     model: text("model").notNull(),
-    briefing: text("briefing", { mode: "json" }).$type<PaperBriefing>().notNull(),
+    briefing: text("briefing", { mode: "json" }).$type<StoredBriefing>().notNull(),
     createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   },
   (table) => [

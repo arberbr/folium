@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s · arXivDesk",
   },
   description:
-    "Cut through the preprint stack. arXivDesk turns arXiv into a personal observatory: briefings, collections, and conversations grounded in the abstract.",
+    "Cut through the preprint stack. arXivDesk turns arXiv into a personal observatory: a daily drop and collections for the fields you follow.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
