@@ -48,8 +48,8 @@ export default function DocsPage() {
         <section id="reading-room" className="scroll-mt-24 space-y-5">
           <SectionHeading n="01" title="The reading room" />
           <p className="leading-relaxed text-pretty">
-            The front door is public. Sign in when you want a personalized Today drop and a
-            library. Until then you can still walk the stacks.
+            The front door is public. Sign in when you want a personalized Today drop and a library.
+            Until then you can still walk the stacks.
           </p>
           <FolioShot
             src="/folio/landing.png"
